@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version "8.3.11"
+}
+
+group = 'top.tasaed.aoh2de'
+version = '0.1.0'
+
+repositories {
+    maven {
+        url = 'https://maven.aliyun.com/repository/gradle-plugin'
+    }
+    maven {
+        url = 'https://maven.aliyun.com/repository/public'
+    }
+    maven {
+        url = "https://jitpack.io/"
+    }
+    maven {
+        url = "https://plugins.gradle.org/m2/"
+    }
+    mavenCentral()
+}
+
+dependencies {
+    shadow fileTree(dir:'libs',includes: ['*.jar'])
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
+java {
+    withSourcesJar()
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
+
+task release {
+    description = 'Create a release set of Jars.'
+    group = 'build'
+    dependsOn clean, shadowJar, sourcesJar
+}

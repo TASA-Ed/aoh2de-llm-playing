@@ -1,0 +1,11 @@
+{
+  "id": "top.tasaed.aoh2de.llm.playing",
+  "name": "LLM Playing Game",
+  "version": "0.1.0",
+  "sdkVersion": ">=1.5.3",
+  "hasTweaker": false,
+  "useLuminosity": true,
+  "tweakClasses": [
+    "top.tasaed.aoh2de.llm.playing.MixinAoCGame"
+  ]
+}
