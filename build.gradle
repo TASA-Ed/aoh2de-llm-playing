@@ -24,10 +24,12 @@ repositories {
 
 dependencies {
     shadow fileTree(dir:'libs',includes: ['*.jar'])
+    implementation("com.alibaba.fastjson2:fastjson2:2.0.62")
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
 
 compileTestJava {

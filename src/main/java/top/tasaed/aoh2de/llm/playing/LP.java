@@ -1,5 +1,7 @@
 package top.tasaed.aoh2de.llm.playing;
 
+import top.tasaed.aoh2de.llm.playing.handlers.EndTurnHandler;
+
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
@@ -38,6 +40,7 @@ public final class LP {
         ExecutorService newExecutor = Executors.newCachedThreadPool(new DaemonThreadFactory());
         newServer.setExecutor(newExecutor);
         newServer.createContext("/health", this::handleHealth);
+        newServer.createContext("/end_turn", new EndTurnHandler());
 
         try {
             newServer.start();
