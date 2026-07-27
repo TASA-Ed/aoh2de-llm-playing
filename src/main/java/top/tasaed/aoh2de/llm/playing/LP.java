@@ -3,6 +3,7 @@ package top.tasaed.aoh2de.llm.playing;
 import top.tasaed.aoh2de.llm.playing.handlers.EndTurnHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.NationInformationHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.NationSummaryHandler;
+import top.tasaed.aoh2de.llm.playing.handlers.ProvinceListHandler;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
@@ -45,6 +46,7 @@ public final class LP {
         newServer.createContext("/end_turn", new EndTurnHandler());
         newServer.createContext("/get_nation_summary", new NationSummaryHandler());
         newServer.createContext("/get_nation_information", new NationInformationHandler());
+        newServer.createContext("/get_province_list", new ProvinceListHandler());
 
         try {
             newServer.start();
