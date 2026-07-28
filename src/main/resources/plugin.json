@@ -1,6 +1,6 @@
 {
   "id": "top.tasaed.aoh2de.llm.playing",
-  "name": "LLM Playing Game",
+  "name": "LLM Playing",
   "version": "0.1.0",
   "sdkVersion": ">=1.5.3",
   "hasTweaker": false,
