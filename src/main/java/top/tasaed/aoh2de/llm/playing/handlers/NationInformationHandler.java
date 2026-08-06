@@ -12,7 +12,7 @@ public final class NationInformationHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread() {
+    protected JSONObject handleOnGameThread(JSONObject request) {
         Civilization player = CFG.core.getCiv(CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId());
         JSONObject information = new JSONObject();
         information.put("civilizationId", player.getCivId());

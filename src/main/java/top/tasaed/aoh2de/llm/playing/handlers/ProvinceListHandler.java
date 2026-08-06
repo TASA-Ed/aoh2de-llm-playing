@@ -12,11 +12,11 @@ import java.util.List;
 
 public final class ProvinceListHandler extends GameRequestHandler {
     public ProvinceListHandler() {
-        super("GET_NATION_INFORMATION_FAILED", "Failed to get the nation information.");
+        super("GET_PROVINCE_LIST_FAILED", "Failed to get the province list.");
     }
 
     @Override
-    protected JSONObject handleOnGameThread() {
+    protected JSONObject handleOnGameThread(JSONObject request) {
         Civilization player = CFG.core.getCiv(CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId());
         List<JSONObject> provinces = new ArrayList<>();
         for (int i = 0; i < player.getNumOfProvs(); i++) {

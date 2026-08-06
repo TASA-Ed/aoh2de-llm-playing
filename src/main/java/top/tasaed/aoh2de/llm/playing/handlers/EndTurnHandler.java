@@ -11,7 +11,7 @@ public final class EndTurnHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread() {
+    protected JSONObject handleOnGameThread(JSONObject request) {
         Menu_InGame_ProvInfo.clickEndTurn();
         return HttpResponses.success();
     }
