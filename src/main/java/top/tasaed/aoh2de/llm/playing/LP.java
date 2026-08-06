@@ -7,6 +7,7 @@ import top.tasaed.aoh2de.llm.playing.handlers.NationInformationHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.NationSummaryHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.ProvinceListHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.ArmyListHandler;
+import top.tasaed.aoh2de.llm.playing.handlers.ConstructBuildingHandler;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
@@ -48,6 +49,7 @@ public final class LP {
         newServer.createContext("/v1/army/move", new MoveArmyHandler());
         newServer.createContext("/v1/army/cancel_move", new CancelArmyMoveHandler());
         newServer.createContext("/v1/army/get_army_list", new ArmyListHandler());
+        newServer.createContext("/v1/building/construct", new ConstructBuildingHandler());
         newServer.createContext("/v1/nation/get_nation_summary", new NationSummaryHandler());
         newServer.createContext("/v1/nation/get_nation_information", new NationInformationHandler());
         newServer.createContext("/v1/nation/get_province_list", new ProvinceListHandler());
