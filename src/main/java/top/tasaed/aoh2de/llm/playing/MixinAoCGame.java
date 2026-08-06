@@ -1,6 +1,7 @@
 package top.tasaed.aoh2de.llm.playing;
 
 import java.io.IOException;
+import java.net.BindException;
 
 import team.rainfall.finality.FinalityLogger;
 import team.rainfall.finality.luminosity2.CallbackInfo;
@@ -12,10 +13,20 @@ public class MixinAoCGame {
     @Inject(methodName = "create")
     private static void beforeCreate(CallbackInfo callbackInfo) {
         try {
-            LP.getInstance().start();
-            FinalityLogger.info("LLM Playing HTTP server started at http://127.0.0.1:" + LP.PORT);
-        } catch (IOException exception) {
-            FinalityLogger.error("Failed to start LLM Playing HTTP server", exception);
+            int port = 8080;
+            for (int i = 0; i < 10; i++) {
+                try {
+                    LP.getInstance().start(port);
+                    FinalityLogger.info("LLM Playing HTTP server started at http://127.0.0.1:" + port);
+                    return;
+                } catch (BindException e) {
+                    FinalityLogger.warn("Port " + port + " is in use. Try the next one...");
+                    port++;
+                }
+            }
+            throw new IOException("no available port was found after 10 attempts");
+        } catch (IOException e) {
+            FinalityLogger.error("Failed to start the server:", e);
         }
     }
 }

@@ -18,8 +18,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class LP {
-    public static final int PORT = 8088;
-
     private HttpServer server;
     private ExecutorService executor;
 
@@ -34,12 +32,12 @@ public final class LP {
         return Holder.INSTANCE;
     }
 
-    public synchronized void start() throws IOException {
+    public synchronized void start(int port) throws IOException {
         if (server != null) {
             return;
         }
 
-        HttpServer newServer = HttpServer.create(new InetSocketAddress("127.0.0.1", PORT), 0);
+        HttpServer newServer = HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0);
         ExecutorService newExecutor = Executors.newCachedThreadPool(new DaemonThreadFactory());
         newServer.setExecutor(newExecutor);
         newServer.createContext("/v1/health", this::handleHealth);
