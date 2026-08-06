@@ -42,11 +42,11 @@ public final class LP {
         HttpServer newServer = HttpServer.create(new InetSocketAddress("127.0.0.1", PORT), 0);
         ExecutorService newExecutor = Executors.newCachedThreadPool(new DaemonThreadFactory());
         newServer.setExecutor(newExecutor);
-        newServer.createContext("/health", this::handleHealth);
-        newServer.createContext("/end_turn", new EndTurnHandler());
-        newServer.createContext("/get_nation_summary", new NationSummaryHandler());
-        newServer.createContext("/get_nation_information", new NationInformationHandler());
-        newServer.createContext("/get_province_list", new ProvinceListHandler());
+        newServer.createContext("/v1/health", this::handleHealth);
+        newServer.createContext("/v1/turn/end_turn", new EndTurnHandler());
+        newServer.createContext("/v1/nation/get_nation_summary", new NationSummaryHandler());
+        newServer.createContext("/v1/nation/get_nation_information", new NationInformationHandler());
+        newServer.createContext("/v1/nation/get_province_list", new ProvinceListHandler());
 
         try {
             newServer.start();

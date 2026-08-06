@@ -13,7 +13,7 @@ public final class NationSummaryHandler extends GameRequestHandler {
 
     @Override
     protected JSONObject handleOnGameThread() {
-        Civilization player = getPlayerCivilization();
+        Civilization player = CFG.core.getCiv(CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId());
         JSONObject summary = new JSONObject();
         summary.put("gold", player.getGold());
         summary.put("movePoints", player.getMovemPoints());
@@ -30,9 +30,5 @@ public final class NationSummaryHandler extends GameRequestHandler {
         summary.put("warWeariness", player.getWarWeariness());
         summary.put("atWar", player.isAtWarC());
         return HttpResponses.success(summary);
-    }
-
-    private Civilization getPlayerCivilization() {
-        return CFG.core.getCiv(CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId());
     }
 }
