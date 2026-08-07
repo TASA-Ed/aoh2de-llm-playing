@@ -18,6 +18,7 @@ import top.tasaed.aoh2de.llm.playing.handlers.MoveArmyHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.NationInformationHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.NationSummaryHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.ProvinceListHandler;
+import top.tasaed.aoh2de.llm.playing.handlers.TurnStatsHandler;
 
 public final class LP {
     private HttpServer server;
@@ -42,7 +43,8 @@ public final class LP {
         ExecutorService newExecutor = Executors.newCachedThreadPool(new DaemonThreadFactory());
         newServer.setExecutor(newExecutor);
         newServer.createContext("/v1/health", this::handleHealth);
-        newServer.createContext("/v1/turn/end_turn", new EndTurnHandler());
+        newServer.createContext("/v1/turn/click_end_turn", new EndTurnHandler());
+        newServer.createContext("/v1/turn/get_stats", new TurnStatsHandler());
         newServer.createContext("/v1/army/move", new MoveArmyHandler());
         newServer.createContext("/v1/army/cancel_move", new CancelArmyMoveHandler());
         newServer.createContext("/v1/army/get_army_list", new ArmyListHandler());
