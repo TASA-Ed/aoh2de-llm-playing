@@ -15,11 +15,20 @@ public final class ProvinceListHandler extends GameRequestHandler {
 
     @Override
     protected JSONObject handleOnGameThread(JSONObject request) {
-        Civilization player =
-                CFG.core.getCiv(CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId());
+        Integer civId;
+
+        try {
+            civId = request.getInteger("civilizationId");
+        } catch (RuntimeException exception) {
+            return HttpResponses.error("INVALID_PARAMETER", "civilizationId must be integers.");
+        }
+
+        if (civId == null) civId = CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId();
+
+        Civilization civ = CFG.core.getCiv(civId);
         List<JSONObject> provinces = new ArrayList<>();
-        for (int i = 0; i < player.getNumOfProvs(); i++) {
-            Province province = CFG.core.getProv(player.getProvID(i));
+        for (int i = 0; i < civ.getNumOfProvs(); i++) {
+            Province province = CFG.core.getProv(civ.getProvID(i));
             JSONObject information = new JSONObject();
             information.put("name", province.getName());
             information.put("id", province.getProvID());

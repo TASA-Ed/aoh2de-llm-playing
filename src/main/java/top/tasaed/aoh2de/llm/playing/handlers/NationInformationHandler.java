@@ -12,21 +12,30 @@ public final class NationInformationHandler extends GameRequestHandler {
 
     @Override
     protected JSONObject handleOnGameThread(JSONObject request) {
-        Civilization player =
-                CFG.core.getCiv(CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId());
+        Integer civId;
+
+        try {
+            civId = request.getInteger("civilizationId");
+        } catch (RuntimeException exception) {
+            return HttpResponses.error("INVALID_PARAMETER", "civilizationId must be integers.");
+        }
+
+        if (civId == null) civId = CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId();
+
+        Civilization civ = CFG.core.getCiv(civId);
         JSONObject information = new JSONObject();
-        information.put("civilizationId", player.getCivId());
-        information.put("name", player.getCivName());
-        information.put("tagId", player.getCivTag());
-        information.put("capitalProvinceId", player.getCapitalProvID());
-        information.put("ideologyId", player.getIdeology());
-        information.put("religionId", player.getReligionID());
-        information.put("groupId", player.getGroupID());
-        information.put("puppetOfCivilizationId", player.getPuppetOfCiv());
-        information.put("allianceId", player.getAlliance());
-        information.put("holyRomanEmpireMember", player.getIsPartOfHolyRomanEmpire());
-        information.put("rankPosition", player.getRankPos());
-        information.put("rankScore", player.getRankScore());
+        information.put("civilizationId", civ.getCivId());
+        information.put("name", civ.getCivName());
+        information.put("tagId", civ.getCivTag());
+        information.put("capitalProvinceId", civ.getCapitalProvID());
+        information.put("ideologyId", civ.getIdeology());
+        information.put("religionId", civ.getReligionID());
+        information.put("groupId", civ.getGroupID());
+        information.put("puppetOfCivilizationId", civ.getPuppetOfCiv());
+        information.put("allianceId", civ.getAlliance());
+        information.put("holyRomanEmpireMember", civ.getIsPartOfHolyRomanEmpire());
+        information.put("rankPosition", civ.getRankPos());
+        information.put("rankScore", civ.getRankScore());
         return HttpResponses.success(information);
     }
 }
