@@ -20,6 +20,7 @@ import top.tasaed.aoh2de.llm.playing.handlers.EndTurnHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.MoveArmyHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.NationInformationHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.NationSummaryHandler;
+import top.tasaed.aoh2de.llm.playing.handlers.NeighborCivsHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.ProvinceListHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.TurnStatsHandler;
 
@@ -58,6 +59,7 @@ public final class LP {
         newServer.createContext("/v1/nation/get_nation_summary", new NationSummaryHandler());
         newServer.createContext("/v1/nation/get_nation_information", new NationInformationHandler());
         newServer.createContext("/v1/nation/get_province_list", new ProvinceListHandler());
+        newServer.createContext("/v1/nation/get_neighbor_civs", new NeighborCivsHandler());
 
         try {
             newServer.start();
