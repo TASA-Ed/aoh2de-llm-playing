@@ -1,17 +1,7 @@
 package top.tasaed.aoh2de.llm.playing;
 
-import top.tasaed.aoh2de.llm.playing.handlers.CancelArmyMoveHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.EndTurnHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.MoveArmyHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.NationInformationHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.NationSummaryHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.ProvinceListHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.ArmyListHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.ConstructBuildingHandler;
-
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -20,13 +10,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+import top.tasaed.aoh2de.llm.playing.handlers.ArmyListHandler;
+import top.tasaed.aoh2de.llm.playing.handlers.CancelArmyMoveHandler;
+import top.tasaed.aoh2de.llm.playing.handlers.ConstructBuildingHandler;
+import top.tasaed.aoh2de.llm.playing.handlers.EndTurnHandler;
+import top.tasaed.aoh2de.llm.playing.handlers.MoveArmyHandler;
+import top.tasaed.aoh2de.llm.playing.handlers.NationInformationHandler;
+import top.tasaed.aoh2de.llm.playing.handlers.NationSummaryHandler;
+import top.tasaed.aoh2de.llm.playing.handlers.ProvinceListHandler;
 
 public final class LP {
     private HttpServer server;
     private ExecutorService executor;
 
-    private LP() {
-    }
+    private LP() {}
 
     private static class Holder {
         private static final LP INSTANCE = new LP();

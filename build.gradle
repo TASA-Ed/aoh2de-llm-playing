@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'com.gradleup.shadow' version "8.3.11"
+    id 'com.diffplug.spotless' version "8.9.0"
 }
 
 group = 'top.tasaed.aoh2de'
@@ -25,6 +26,15 @@ repositories {
 dependencies {
     shadow fileTree(dir:'libs',includes: ['*.jar'])
     implementation("com.alibaba.fastjson2:fastjson2:2.0.62")
+}
+
+spotless {
+    java {
+        palantirJavaFormat()
+
+        removeUnusedImports() // 自动清理未使用的 import
+        formatAnnotations()   // 格式化注解
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {

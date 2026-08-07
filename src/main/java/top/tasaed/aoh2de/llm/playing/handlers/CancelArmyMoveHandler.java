@@ -1,13 +1,12 @@
 package top.tasaed.aoh2de.llm.playing.handlers;
 
-import top.tasaed.aoh2de.llm.playing.HttpResponses;
-
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
 import age.of.civilizations2.jakowski.lukasz.GameAction;
 import age.of.civilizations2.jakowski.lukasz.MoveUnitsB.MoveUnits;
 import age.of.civilizations2.jakowski.lukasz.RegroupArmy.RegroupArmy;
 import com.alibaba.fastjson2.JSONObject;
+import top.tasaed.aoh2de.llm.playing.HttpResponses;
 
 public final class CancelArmyMoveHandler extends GameRequestHandler {
     public CancelArmyMoveHandler() {
@@ -46,8 +45,7 @@ public final class CancelArmyMoveHandler extends GameRequestHandler {
 
         int queuedToProvinceId = order.getToProvID();
         int canceledUnits = order.getNumberOfUnits();
-        CFG.gameAction.moveArmyAction(
-                fromProvinceId, queuedToProvinceId, 0, civilizationId, true, true);
+        CFG.gameAction.moveArmyAction(fromProvinceId, queuedToProvinceId, 0, civilizationId, true, true);
         if (findOrder(civilization, fromProvinceId, queuedToProvinceId) != null) {
             return HttpResponses.error("CANCEL_REJECTED", "The game did not cancel the movement order.");
         }
@@ -74,8 +72,7 @@ public final class CancelArmyMoveHandler extends GameRequestHandler {
         return null;
     }
 
-    private static MoveUnits findRoutedOrder(
-            Civilization civilization, int fromProvinceId, int finalProvinceId) {
+    private static MoveUnits findRoutedOrder(Civilization civilization, int fromProvinceId, int finalProvinceId) {
         for (int i = 0; i < civilization.moveUnitsSize(); i++) {
             MoveUnits order = civilization.getMoveUnits(i);
             if (order.getFromProviID() != fromProvinceId) {

@@ -2,14 +2,12 @@ package top.tasaed.aoh2de.llm.playing;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.sun.net.httpserver.HttpExchange;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public final class HttpResponses {
-    private HttpResponses() {
-    }
+    private HttpResponses() {}
 
     public static JSONObject success() {
         JSONObject response = new JSONObject();

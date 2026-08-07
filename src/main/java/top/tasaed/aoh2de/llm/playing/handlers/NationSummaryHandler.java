@@ -1,10 +1,9 @@
 package top.tasaed.aoh2de.llm.playing.handlers;
 
-import top.tasaed.aoh2de.llm.playing.HttpResponses;
-
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
 import com.alibaba.fastjson2.JSONObject;
+import top.tasaed.aoh2de.llm.playing.HttpResponses;
 
 public final class NationSummaryHandler extends GameRequestHandler {
     public NationSummaryHandler() {
@@ -13,7 +12,8 @@ public final class NationSummaryHandler extends GameRequestHandler {
 
     @Override
     protected JSONObject handleOnGameThread(JSONObject request) {
-        Civilization player = CFG.core.getCiv(CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId());
+        Civilization player =
+                CFG.core.getCiv(CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId());
         JSONObject summary = new JSONObject();
         summary.put("gold", player.getGold());
         summary.put("movePoints", player.getMovemPoints());

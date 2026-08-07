@@ -1,14 +1,12 @@
 package top.tasaed.aoh2de.llm.playing.handlers;
 
-import top.tasaed.aoh2de.llm.playing.HttpResponses;
-
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
 import age.of.civilizations2.jakowski.lukasz.Province;
 import com.alibaba.fastjson2.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
+import top.tasaed.aoh2de.llm.playing.HttpResponses;
 
 public final class ProvinceListHandler extends GameRequestHandler {
     public ProvinceListHandler() {
@@ -17,7 +15,8 @@ public final class ProvinceListHandler extends GameRequestHandler {
 
     @Override
     protected JSONObject handleOnGameThread(JSONObject request) {
-        Civilization player = CFG.core.getCiv(CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId());
+        Civilization player =
+                CFG.core.getCiv(CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId());
         List<JSONObject> provinces = new ArrayList<>();
         for (int i = 0; i < player.getNumOfProvs(); i++) {
             Province province = CFG.core.getProv(player.getProvID(i));

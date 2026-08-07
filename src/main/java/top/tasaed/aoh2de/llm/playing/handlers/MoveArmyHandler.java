@@ -1,7 +1,5 @@
 package top.tasaed.aoh2de.llm.playing.handlers;
 
-import top.tasaed.aoh2de.llm.playing.HttpResponses;
-
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
 import age.of.civilizations2.jakowski.lukasz.GameAction;
@@ -9,9 +7,9 @@ import age.of.civilizations2.jakowski.lukasz.MoveUnitsB.MoveUnits;
 import age.of.civilizations2.jakowski.lukasz.Province;
 import age.of.civilizations2.jakowski.lukasz.RegroupArmy.RegroupArmy;
 import com.alibaba.fastjson2.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
+import top.tasaed.aoh2de.llm.playing.HttpResponses;
 
 public final class MoveArmyHandler extends GameRequestHandler {
     public MoveArmyHandler() {
@@ -33,8 +31,7 @@ public final class MoveArmyHandler extends GameRequestHandler {
         boolean moveTo = request.getBooleanValue("moveTo");
 
         if (fromProvinceId == null || toProvinceId == null || units == null) {
-            return HttpResponses.error("MISSING_PARAMETER",
-                    "fromProvinceId, toProvinceId and units are required.");
+            return HttpResponses.error("MISSING_PARAMETER", "fromProvinceId, toProvinceId and units are required.");
         }
         if (CFG.gameAction.getActiveTurnStateID() != GameAction.TurnStates.INPUT_ORDERS) {
             return HttpResponses.error("NOT_ACCEPTING_ORDERS", "The game is not accepting orders now.");
@@ -61,8 +58,8 @@ public final class MoveArmyHandler extends GameRequestHandler {
             return HttpResponses.error("NO_VALID_ROUTE", "No valid route to the target province was found.");
         }
         if (!moveTo && route.getRouteSize() != 1) {
-            return HttpResponses.error("TARGET_NOT_ADJACENT",
-                    "The target is not adjacent. Set moveTo to true to use a multi-turn route.");
+            return HttpResponses.error(
+                    "TARGET_NOT_ADJACENT", "The target is not adjacent. Set moveTo to true to use a multi-turn route.");
         }
 
         int firstHopProvinceId = route.getRoute(0);
@@ -76,15 +73,14 @@ public final class MoveArmyHandler extends GameRequestHandler {
         }
 
         int movementCost = CFG.gameAction.costOfMoveArmy(fromProvinceId, firstHopProvinceId, civilizationId);
-        boolean adjustsExistingOrder = CFG.gameAction.getIsFreeMove(
-                civilizationId, fromProvinceId, firstHopProvinceId);
+        boolean adjustsExistingOrder = CFG.gameAction.getIsFreeMove(civilizationId, fromProvinceId, firstHopProvinceId);
         if (!adjustsExistingOrder && civilization.getMovemPoints() < movementCost) {
-            return HttpResponses.error("NOT_ENOUGH_MOVEMENT_POINTS",
-                    "The civilization does not have enough movement points.");
+            return HttpResponses.error(
+                    "NOT_ENOUGH_MOVEMENT_POINTS", "The civilization does not have enough movement points.");
         }
 
-        boolean accepted = CFG.gameAction.moveArmyAction(
-                fromProvinceId, firstHopProvinceId, units, civilizationId, moveTo, true);
+        boolean accepted =
+                CFG.gameAction.moveArmyAction(fromProvinceId, firstHopProvinceId, units, civilizationId, moveTo, true);
         if (!accepted) {
             return HttpResponses.error("MOVE_REJECTED", "The game rejected the army movement order.");
         }

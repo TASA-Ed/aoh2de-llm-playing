@@ -1,13 +1,11 @@
 package top.tasaed.aoh2de.llm.playing.handlers;
 
-import top.tasaed.aoh2de.llm.playing.HttpResponses;
-
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
 import com.alibaba.fastjson2.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
+import top.tasaed.aoh2de.llm.playing.HttpResponses;
 
 public final class ArmyListHandler extends GameRequestHandler {
     public ArmyListHandler() {
