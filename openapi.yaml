@@ -1,0 +1,554 @@
+openapi: 3.1.0
+info:
+  title: LLM Tools API
+  version: 1.0.0
+  description: |
+    由 LP 启动的本地游戏工具服务，仅监听 `127.0.0.1:<port>`。
+    除健康检查外，所有接口均为 POST，使用 UTF-8 JSON 请求和响应。请求体最大为 64 KiB；空请求体等同于 `{}`。
+    游戏操作在主线程串行执行；会改变游戏状态的调用应按顺序安排。
+servers:
+  - url: http://127.0.0.1:{port}
+    description: LP-started local service
+    variables:
+      port:
+        default: '8080'
+        description: Port selected when LP starts the service.
+security: []
+paths:
+  /v1/health:
+    get:
+      summary: Health check
+      description: Checks whether the local service is online. The game does not need to be ready.
+      responses:
+        '200':
+          description: Service is online.
+          content:
+            text/plain:
+              schema:
+                type: string
+                const: OK
+  /v1/turn/get_stats:
+    post:
+      tags: [Turn]
+      summary: Get turn status
+      description: Query the current turn phase and end-turn button state.
+      requestBody: {$ref: '#/components/requestBodies/EmptyObject'}
+      responses:
+        '200': {$ref: '#/components/responses/TurnStatsSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/turn/click_end_turn:
+    post:
+      tags: [Turn]
+      summary: Click end turn
+      description: Clicks the game's end-turn button. Query turn status again afterward because later game events may complete the advance.
+      requestBody: {$ref: '#/components/requestBodies/EmptyObject'}
+      responses:
+        '200': {$ref: '#/components/responses/EndTurnSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/army/get_army_list:
+    post:
+      tags: [Army]
+      summary: List armies
+      description: Lists the player's non-zero armies, including those stationed in foreign provinces.
+      requestBody: {$ref: '#/components/requestBodies/EmptyObject'}
+      responses:
+        '200': {$ref: '#/components/responses/ArmyListSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/army/move:
+    post:
+      tags: [Army]
+      summary: Order army movement
+      description: Available only during `INPUT_ORDERS`. Set `moveTo` to true to allow a multi-hop route and create an automatic marching route.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ArmyMoveRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/ArmyMoveSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/army/cancel_move:
+    post:
+      tags: [Army]
+      summary: Cancel army movement
+      description: Cancels an ordered movement during `INPUT_ORDERS`. For multi-hop movement, `toProvinceId` is the final destination.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CancelMoveRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/CancelMoveSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/building/construct:
+    post:
+      tags: [Building]
+      summary: Construct or upgrade a building
+      description: Upgrades a building by one level in a player-owned, unoccupied land province. Available only during `INPUT_ORDERS`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ConstructBuildingRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/ConstructBuildingSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/diplomacy/get_stats:
+    post:
+      tags: [Diplomacy]
+      summary: Get diplomacy status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CivilizationRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/DiplomacyStatsSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/diplomacy/get_declare_war:
+    post:
+      tags: [Diplomacy]
+      summary: Declare war
+      description: Declares war on the target civilization. Confirm it is not already at war and has no truce first.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CivilizationRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/SuccessWithoutResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/diplomacy/change_relation:
+    post:
+      tags: [Diplomacy]
+      summary: Change diplomatic relation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ChangeRelationRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/SuccessWithoutResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/nation/get_nation_summary:
+    post:
+      tags: [Nation]
+      summary: Get player nation summary
+      requestBody: {$ref: '#/components/requestBodies/EmptyObject'}
+      responses:
+        '200': {$ref: '#/components/responses/NationSummarySuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/nation/get_nation_information:
+    post:
+      tags: [Nation]
+      summary: Get nation information
+      description: Gets the target civilization's basic information, or the player's civilization when the request body omits `civilizationId`.
+      requestBody: {$ref: '#/components/requestBodies/OptionalCivilization'}
+      responses:
+        '200': {$ref: '#/components/responses/NationInformationSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/nation/get_province_list:
+    post:
+      tags: [Nation]
+      summary: List civilization provinces
+      description: Lists provinces owned by the target civilization, or by the player's civilization when `civilizationId` is omitted.
+      requestBody: {$ref: '#/components/requestBodies/OptionalCivilization'}
+      responses:
+        '200': {$ref: '#/components/responses/ProvinceListSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/nation/get_neighbor_civs:
+    post:
+      tags: [Nation]
+      summary: List neighboring civilizations
+      requestBody: {$ref: '#/components/requestBodies/EmptyObject'}
+      responses:
+        '200': {$ref: '#/components/responses/NeighborListSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/province/get_information:
+    post:
+      tags: [Province]
+      summary: Get province information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ProvinceRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/ProvinceInformationSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+components:
+  requestBodies:
+    EmptyObject:
+      description: May be omitted; an empty request body is interpreted as `{}`.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+    OptionalCivilization:
+      description: May be omitted; without `civilizationId`, the player's civilization is used.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/OptionalCivilizationRequest'}
+  responses:
+    BadRequest:
+      description: Malformed JSON or invalid request parameters.
+      content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}
+    Conflict:
+      description: A business condition did not allow the operation.
+      content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}
+    PayloadTooLarge:
+      description: Request body exceeds 64 KiB.
+      content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}
+    GameNotReady:
+      description: The game is not ready.
+      content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}
+    SuccessWithoutResult:
+      description: The operation was accepted.
+      content: {application/json: {schema: {$ref: '#/components/schemas/SuccessResponse'}}}
+    TurnStatsSuccess:
+      description: Current turn status.
+      content: {application/json: {schema: {$ref: '#/components/schemas/TurnStatsResponse'}}}
+    EndTurnSuccess:
+      description: End-turn click was accepted.
+      content: {application/json: {schema: {$ref: '#/components/schemas/EndTurnResponse'}}}
+    ArmyListSuccess:
+      description: Player army list.
+      content: {application/json: {schema: {$ref: '#/components/schemas/ArmyListResponse'}}}
+    ArmyMoveSuccess:
+      description: Movement order was accepted.
+      content: {application/json: {schema: {$ref: '#/components/schemas/ArmyMoveResponse'}}}
+    CancelMoveSuccess:
+      description: Movement order was cancelled.
+      content: {application/json: {schema: {$ref: '#/components/schemas/CancelMoveResponse'}}}
+    ConstructBuildingSuccess:
+      description: Construction order was accepted.
+      content: {application/json: {schema: {$ref: '#/components/schemas/ConstructBuildingResponse'}}}
+    DiplomacyStatsSuccess:
+      description: Diplomacy status.
+      content: {application/json: {schema: {$ref: '#/components/schemas/DiplomacyStatsResponse'}}}
+    NationSummarySuccess:
+      description: Player nation summary.
+      content: {application/json: {schema: {$ref: '#/components/schemas/NationSummaryResponse'}}}
+    NationInformationSuccess:
+      description: Nation information.
+      content: {application/json: {schema: {$ref: '#/components/schemas/NationInformationResponse'}}}
+    ProvinceListSuccess:
+      description: Province list.
+      content: {application/json: {schema: {$ref: '#/components/schemas/ProvinceListResponse'}}}
+    NeighborListSuccess:
+      description: Neighbor civilization list.
+      content: {application/json: {schema: {$ref: '#/components/schemas/NeighborListResponse'}}}
+    ProvinceInformationSuccess:
+      description: Province information.
+      content: {application/json: {schema: {$ref: '#/components/schemas/ProvinceInformationResponse'}}}
+  schemas:
+    CivilizationId:
+      type: integer
+      description: Internal game civilization ID, not its display name.
+    ProvinceId:
+      type: integer
+      description: Internal game province ID, not its display name.
+    SuccessResponse:
+      type: object
+      required: [success]
+      properties: {success: {type: boolean, const: true}}
+    ErrorResponse:
+      type: object
+      required: [success, error]
+      properties:
+        success: {type: boolean, const: false}
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: {type: string, description: Machine-readable error code.}
+            message: {type: string, description: Human-readable error message.}
+    CivilizationRequest:
+      type: object
+      additionalProperties: false
+      required: [civilizationId]
+      properties: {civilizationId: {$ref: '#/components/schemas/CivilizationId'}}
+    OptionalCivilizationRequest:
+      type: object
+      additionalProperties: false
+      properties: {civilizationId: {$ref: '#/components/schemas/CivilizationId'}}
+    ProvinceRequest:
+      type: object
+      additionalProperties: false
+      required: [provinceId]
+      properties: {provinceId: {$ref: '#/components/schemas/ProvinceId'}}
+    ArmyMoveRequest:
+      type: object
+      additionalProperties: false
+      required: [fromProvinceId, toProvinceId, units]
+      properties:
+        fromProvinceId: {$ref: '#/components/schemas/ProvinceId'}
+        toProvinceId: {$ref: '#/components/schemas/ProvinceId'}
+        units: {type: integer, minimum: 1}
+        moveTo: {type: boolean, default: false}
+    CancelMoveRequest:
+      type: object
+      additionalProperties: false
+      required: [fromProvinceId, toProvinceId]
+      properties:
+        fromProvinceId: {$ref: '#/components/schemas/ProvinceId'}
+        toProvinceId: {$ref: '#/components/schemas/ProvinceId'}
+    ConstructBuildingRequest:
+      type: object
+      additionalProperties: false
+      required: [provinceId, buildingType]
+      properties:
+        provinceId: {$ref: '#/components/schemas/ProvinceId'}
+        buildingType:
+          type: string
+          enum: [farm, port, fort, tower, library, armoury, workshop, market, supply]
+          description: Input is trimmed and converted to lowercase by the service.
+    ChangeRelationRequest:
+      type: object
+      additionalProperties: false
+      required: [civilizationId, type, turns]
+      properties:
+        civilizationId: {$ref: '#/components/schemas/CivilizationId'}
+        type: {type: string, enum: [improve, decrease]}
+        turns: {type: integer, description: Valid range depends on relation action and game configuration.}
+    TurnStatsResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [turnId, turnState, buttonClickable, hasCurrentMilitaryAction, nextEventAvailable, newTurnReady]
+          properties:
+            turnId: {type: integer}
+            turnState: {type: string, description: Game turn-state enum name.}
+            buttonClickable: {type: boolean}
+            hasCurrentMilitaryAction: {type: boolean}
+            nextEventAvailable: {type: boolean}
+            newTurnReady: {type: boolean}
+    EndTurnResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result: {type: object, required: [beforeTurnId], properties: {beforeTurnId: {type: integer}}}
+    ArmyListResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [armyList]
+          properties:
+            armyList:
+              type: array
+              items: {type: object, required: [provinceId, troops], properties: {provinceId: {$ref: '#/components/schemas/ProvinceId'}, troops: {type: integer, minimum: 1}}}
+    ArmyMoveResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [civilizationId, fromProvinceId, toProvinceId, units, moveTo, firstHopProvinceId, movementCost, remainingMovementPoints, remainingRoute]
+          properties:
+            civilizationId: {$ref: '#/components/schemas/CivilizationId'}
+            fromProvinceId: {$ref: '#/components/schemas/ProvinceId'}
+            toProvinceId: {$ref: '#/components/schemas/ProvinceId'}
+            units: {type: integer}
+            moveTo: {type: boolean}
+            firstHopProvinceId: {$ref: '#/components/schemas/ProvinceId'}
+            movementCost: {type: integer}
+            remainingMovementPoints: {type: integer}
+            remainingRoute: {type: array, items: {$ref: '#/components/schemas/ProvinceId'}}
+    CancelMoveResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [civilizationId, fromProvinceId, toProvinceId, queuedToProvinceId, canceledUnits, remainingMovementPoints]
+          properties:
+            civilizationId: {$ref: '#/components/schemas/CivilizationId'}
+            fromProvinceId: {$ref: '#/components/schemas/ProvinceId'}
+            toProvinceId: {$ref: '#/components/schemas/ProvinceId'}
+            queuedToProvinceId: {$ref: '#/components/schemas/ProvinceId'}
+            canceledUnits: {type: integer}
+            remainingMovementPoints: {type: integer}
+    ConstructBuildingResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [provinceId, buildingType, civilizationId, currentLevel, targetLevel, constructionTurns, goldCost, movementCost, remainingGold, remainingMovementPoints]
+          properties:
+            provinceId: {$ref: '#/components/schemas/ProvinceId'}
+            buildingType: {type: string}
+            civilizationId: {$ref: '#/components/schemas/CivilizationId'}
+            currentLevel: {type: integer}
+            targetLevel: {type: integer}
+            constructionTurns: {type: integer}
+            goldCost: {type: integer}
+            movementCost: {type: integer}
+            remainingGold: {type: integer}
+            remainingMovementPoints: {type: integer}
+    DiplomacyStatsResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [our_opinion, their_opinion, atWar, truceTurns, militaryAccessTurns, nonAggressionPactTurns, defensivePactTurns, guaranteeTurns, isAllied]
+          properties:
+            our_opinion: {type: integer}
+            their_opinion: {type: integer}
+            atWar: {type: boolean}
+            truceTurns: {type: integer}
+            militaryAccessTurns: {type: integer}
+            nonAggressionPactTurns: {type: integer}
+            defensivePactTurns: {type: integer}
+            guaranteeTurns: {type: integer}
+            isAllied: {type: boolean}
+    NationSummaryResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [gold, movePoints, diplomacyPoints, technologyLevel, stability, happiness, population, economy, provinceCount, unitCount, income, expenses, warWeariness, atWar]
+          properties:
+            gold: {type: integer}
+            movePoints: {type: integer}
+            diplomacyPoints: {type: integer}
+            technologyLevel: {type: integer}
+            stability: {type: integer}
+            happiness: {type: integer}
+            population: {type: integer}
+            economy: {type: integer}
+            provinceCount: {type: integer}
+            unitCount: {type: integer}
+            income: {type: integer}
+            expenses: {type: integer}
+            warWeariness: {type: integer}
+            atWar: {type: boolean}
+    NationInformationResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [civilizationId, name, tagId, capitalProvinceId, ideologyId, religionId, groupId, puppetOfCivilizationId, allianceId, holyRomanEmpireMember, rankPosition, rankScore]
+          properties:
+            civilizationId: {$ref: '#/components/schemas/CivilizationId'}
+            name: {type: string}
+            tagId: {type: integer}
+            capitalProvinceId: {$ref: '#/components/schemas/ProvinceId'}
+            ideologyId: {type: integer}
+            religionId: {type: integer}
+            groupId: {type: integer}
+            puppetOfCivilizationId: {$ref: '#/components/schemas/CivilizationId'}
+            allianceId: {type: integer}
+            holyRomanEmpireMember: {type: boolean}
+            rankPosition: {type: integer}
+            rankScore: {type: integer}
+    ProvinceListResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [provinces]
+          properties:
+            provinces:
+              type: array
+              items: {type: object, required: [id, name], properties: {id: {$ref: '#/components/schemas/ProvinceId'}, name: {type: string}}}
+    NeighborListResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [neighbors, neighborCount]
+          properties:
+            neighbors:
+              type: array
+              items: {type: object, required: [id, name, provinceCount], properties: {id: {$ref: '#/components/schemas/CivilizationId'}, name: {type: string}, provinceCount: {type: integer}}}
+            neighborCount: {type: integer}
+    ProvinceInformationResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [id, name, terrainTypeId, isCoastal, population, economy, developmentLevel, civilizationId, buildings]
+          properties:
+            id: {$ref: '#/components/schemas/ProvinceId'}
+            name: {type: string}
+            terrainTypeId: {type: integer}
+            isCoastal: {type: boolean}
+            population: {type: integer}
+            economy: {type: integer}
+            developmentLevel: {type: integer}
+            civilizationId: {$ref: '#/components/schemas/CivilizationId'}
+            buildings:
+              type: object
+              additionalProperties: false
+              properties:
+                port: {type: integer, minimum: 1}
+                farm: {type: integer, minimum: 1}
+                workshop: {type: integer, minimum: 1}
+                market: {type: integer, minimum: 1}
+                library: {type: integer, minimum: 1}
+                armoury: {type: integer, minimum: 1}
+                supply: {type: integer, minimum: 1}
+                fort: {type: integer, minimum: 1}
+                watchTower: {type: integer, minimum: 1}
