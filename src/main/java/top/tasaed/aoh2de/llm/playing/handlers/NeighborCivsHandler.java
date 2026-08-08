@@ -14,8 +14,17 @@ public final class NeighborCivsHandler extends GameRequestHandler {
 
     @Override
     protected JSONObject handleOnGameThread(JSONObject request) {
-        Civilization player =
-                CFG.core.getCiv(CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId());
+        Integer civId;
+
+        try {
+            civId = request.getInteger("civilizationId");
+        } catch (RuntimeException exception) {
+            return HttpResponses.error("INVALID_PARAMETER", "civilizationId must be integers.");
+        }
+
+        if (civId == null) civId = CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId();
+
+        Civilization player = CFG.core.getCiv(civId);
 
         player.civNeighbors.buildNeighbors(player.getCivId());
 

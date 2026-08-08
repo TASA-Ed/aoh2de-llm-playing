@@ -193,7 +193,8 @@ paths:
     post:
       tags: [Nation]
       summary: List neighboring civilizations
-      requestBody: {$ref: '#/components/requestBodies/EmptyObject'}
+      description: Lists neighboring civilizations by the target civilization, or by the player's civilization when `civilizationId` is omitted.
+      requestBody: {$ref: '#/components/requestBodies/OptionalCivilization'}
       responses:
         '200': {$ref: '#/components/responses/NeighborListSuccess'}
         '400': {$ref: '#/components/responses/BadRequest'}

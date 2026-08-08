@@ -19,10 +19,10 @@ import top.tasaed.aoh2de.llm.playing.handlers.DiplomacyStatsHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.EndTurnHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.MoveArmyHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.NationInformationHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.SelfSummaryHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.NeighborCivsHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.ProvinceInformationHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.ProvinceListHandler;
+import top.tasaed.aoh2de.llm.playing.handlers.SelfSummaryHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.TurnStatsHandler;
 
 public final class LP {
