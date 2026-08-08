@@ -42,7 +42,7 @@ paths:
     post:
       tags: [Turn]
       summary: Click end turn
-      description: Clicks the game's end-turn button. Query turn status again afterward because later game events may complete the advance.
+      description: Click the game's “End Turn” button. Afterward, check the turn status again, as turn resolution may take a long time, and there may be game events to review once resolution is complete. You can also use this API when handling game events.
       requestBody: {$ref: '#/components/requestBodies/EmptyObject'}
       responses:
         '200': {$ref: '#/components/responses/EndTurnSuccess'}
@@ -155,13 +155,13 @@ paths:
         '409': {$ref: '#/components/responses/Conflict'}
         '413': {$ref: '#/components/responses/PayloadTooLarge'}
         '503': {$ref: '#/components/responses/GameNotReady'}
-  /v1/nation/get_nation_summary:
+  /v1/self/get_summary:
     post:
-      tags: [Nation]
-      summary: Get player nation summary
+      tags: [Self]
+      summary: Get player summary
       requestBody: {$ref: '#/components/requestBodies/EmptyObject'}
       responses:
-        '200': {$ref: '#/components/responses/NationSummarySuccess'}
+        '200': {$ref: '#/components/responses/SelfSummarySuccess'}
         '400': {$ref: '#/components/responses/BadRequest'}
         '413': {$ref: '#/components/responses/PayloadTooLarge'}
         '503': {$ref: '#/components/responses/GameNotReady'}
@@ -265,9 +265,9 @@ components:
     DiplomacyStatsSuccess:
       description: Diplomacy status.
       content: {application/json: {schema: {$ref: '#/components/schemas/DiplomacyStatsResponse'}}}
-    NationSummarySuccess:
-      description: Player nation summary.
-      content: {application/json: {schema: {$ref: '#/components/schemas/NationSummaryResponse'}}}
+    SelfSummarySuccess:
+      description: Player summary.
+      content: {application/json: {schema: {$ref: '#/components/schemas/SelfSummaryResponse'}}}
     NationInformationSuccess:
       description: Nation information.
       content: {application/json: {schema: {$ref: '#/components/schemas/NationInformationResponse'}}}
@@ -453,7 +453,7 @@ components:
             defensivePactTurns: {type: integer}
             guaranteeTurns: {type: integer}
             isAllied: {type: boolean}
-    NationSummaryResponse:
+    SelfSummaryResponse:
       type: object
       required: [success, result]
       properties:

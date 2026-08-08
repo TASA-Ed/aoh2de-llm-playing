@@ -5,9 +5,9 @@ import age.of.civilizations2.jakowski.lukasz.Civilization;
 import com.alibaba.fastjson2.JSONObject;
 import top.tasaed.aoh2de.llm.playing.HttpResponses;
 
-public final class NationSummaryHandler extends GameRequestHandler {
-    public NationSummaryHandler() {
-        super("GET_NATION_SUMMARY_FAILED", "Failed to get the nation summary.");
+public final class SelfSummaryHandler extends GameRequestHandler {
+    public SelfSummaryHandler() {
+        super("GET_SELF_SUMMARY_FAILED", "Failed to get the self summary.");
     }
 
     @Override

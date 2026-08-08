@@ -19,7 +19,7 @@ import top.tasaed.aoh2de.llm.playing.handlers.DiplomacyStatsHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.EndTurnHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.MoveArmyHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.NationInformationHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.NationSummaryHandler;
+import top.tasaed.aoh2de.llm.playing.handlers.SelfSummaryHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.NeighborCivsHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.ProvinceInformationHandler;
 import top.tasaed.aoh2de.llm.playing.handlers.ProvinceListHandler;
@@ -57,7 +57,7 @@ public final class LP {
         newServer.createContext("/v1/diplomacy/get_stats", new DiplomacyStatsHandler());
         newServer.createContext("/v1/diplomacy/get_declare_war", new DeclareWarHandler());
         newServer.createContext("/v1/diplomacy/change_relation", new ChangeRelationHandler());
-        newServer.createContext("/v1/nation/get_nation_summary", new NationSummaryHandler());
+        newServer.createContext("/v1/self/get_summary", new SelfSummaryHandler());
         newServer.createContext("/v1/nation/get_nation_information", new NationInformationHandler());
         newServer.createContext("/v1/nation/get_province_list", new ProvinceListHandler());
         newServer.createContext("/v1/nation/get_neighbor_civs", new NeighborCivsHandler());
