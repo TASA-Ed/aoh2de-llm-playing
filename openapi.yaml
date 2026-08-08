@@ -124,7 +124,7 @@ paths:
         '409': {$ref: '#/components/responses/Conflict'}
         '413': {$ref: '#/components/responses/PayloadTooLarge'}
         '503': {$ref: '#/components/responses/GameNotReady'}
-  /v1/diplomacy/get_declare_war:
+  /v1/diplomacy/declare_war:
     post:
       tags: [Diplomacy]
       summary: Declare war
@@ -163,6 +163,33 @@ paths:
       responses:
         '200': {$ref: '#/components/responses/SelfSummarySuccess'}
         '400': {$ref: '#/components/responses/BadRequest'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/message/get_message_list:
+    post:
+      tags: [Message]
+      summary: List player messages
+      description: Lists the messages currently waiting in the player's diplomatic message box. Use each message's `messageId` with the action endpoint.
+      requestBody: {$ref: '#/components/requestBodies/EmptyObject'}
+      responses:
+        '200': {$ref: '#/components/responses/MessageListSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/message/action_message:
+    post:
+      tags: [Message]
+      summary: Respond to a player message
+      description: Accepts or declines a message and removes it from the player's message box. Message IDs are current list indexes and may change whenever a message is removed, so query the list again before later actions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/MessageActionRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/SuccessWithoutResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
         '413': {$ref: '#/components/responses/PayloadTooLarge'}
         '503': {$ref: '#/components/responses/GameNotReady'}
   /v1/nation/get_nation_information:
@@ -269,6 +296,9 @@ components:
     SelfSummarySuccess:
       description: Player summary.
       content: {application/json: {schema: {$ref: '#/components/schemas/SelfSummaryResponse'}}}
+    MessageListSuccess:
+      description: Messages currently waiting for the player.
+      content: {application/json: {schema: {$ref: '#/components/schemas/MessageListResponse'}}}
     NationInformationSuccess:
       description: Nation information.
       content: {application/json: {schema: {$ref: '#/components/schemas/NationInformationResponse'}}}
@@ -351,6 +381,13 @@ components:
         civilizationId: {$ref: '#/components/schemas/CivilizationId'}
         type: {type: string, enum: [improve, decrease]}
         turns: {type: integer, description: Valid range depends on relation action and game configuration.}
+    MessageActionRequest:
+      type: object
+      additionalProperties: false
+      required: [messageId, type]
+      properties:
+        messageId: {type: integer, minimum: 0, description: Current zero-based index returned by the message list endpoint.}
+        type: {type: string, enum: [accept, decline]}
     TurnStatsResponse:
       type: object
       required: [success, result]
@@ -477,6 +514,30 @@ components:
             expenses: {type: integer}
             warWeariness: {type: integer}
             atWar: {type: boolean}
+    MessageListResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [messages]
+          properties:
+            messages:
+              type: array
+              items:
+                type: object
+                required: [messageId, fromCivId, messageType, numOfTurnsLeft, iValue, iValue2, TAG, requestsResponse, willPauseTheGame]
+                properties:
+                  messageId: {type: integer, minimum: 0, description: Current zero-based message-box index.}
+                  fromCivId: {$ref: '#/components/schemas/CivilizationId'}
+                  messageType: {type: string, description: Game `MessageType` enum name.}
+                  numOfTurnsLeft: {type: integer}
+                  iValue: {type: integer, description: Message-type-specific integer value.}
+                  iValue2: {type: integer, description: Message-type-specific secondary integer value.}
+                  TAG: {type: [string, 'null'], description: Message-type-specific tag.}
+                  requestsResponse: {type: boolean}
+                  willPauseTheGame: {type: boolean}
     NationInformationResponse:
       type: object
       required: [success, result]

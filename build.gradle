@@ -58,3 +58,16 @@ task release {
     group = 'build'
     dependsOn clean, shadowJar, sourcesJar
 }
+
+tasks.register('lintOpenApi', Exec) {
+    group = 'verification'
+    description = 'Lints the openapi.yaml using Redocly CLI'
+
+    boolean isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
+
+    if (isWindows) {
+        commandLine 'cmd', '/c', 'pnpx', '--package=@redocly/cli', 'redocly', 'lint', 'openapi.yaml', '--skip-rule', 'info-license', '--skip-rule', 'operation-operationId', '--skip-rule', 'operation-4xx-response'
+    } else {
+        commandLine 'pnpx', '--package=@redocly/cli', 'redocly', 'lint', 'openapi.yaml','--skip-rule', 'info-license', '--skip-rule', 'operation-operationId', '--skip-rule', 'operation-4xx-response'
+    }
+}

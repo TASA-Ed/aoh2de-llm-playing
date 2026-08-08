@@ -10,20 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-import top.tasaed.aoh2de.llm.playing.handlers.ArmyListHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.CancelArmyMoveHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.ChangeRelationHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.ConstructBuildingHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.DeclareWarHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.DiplomacyStatsHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.EndTurnHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.MoveArmyHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.NationInformationHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.NeighborCivsHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.ProvinceInformationHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.ProvinceListHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.SelfSummaryHandler;
-import top.tasaed.aoh2de.llm.playing.handlers.TurnStatsHandler;
+import top.tasaed.aoh2de.llm.playing.handlers.*;
 
 public final class LP {
     private HttpServer server;
@@ -55,9 +42,11 @@ public final class LP {
         newServer.createContext("/v1/army/get_army_list", new ArmyListHandler());
         newServer.createContext("/v1/building/construct", new ConstructBuildingHandler());
         newServer.createContext("/v1/diplomacy/get_stats", new DiplomacyStatsHandler());
-        newServer.createContext("/v1/diplomacy/get_declare_war", new DeclareWarHandler());
+        newServer.createContext("/v1/diplomacy/declare_war", new DeclareWarHandler());
         newServer.createContext("/v1/diplomacy/change_relation", new ChangeRelationHandler());
         newServer.createContext("/v1/self/get_summary", new SelfSummaryHandler());
+        newServer.createContext("/v1/message/get_message_list", new MessageListHandler());
+        newServer.createContext("/v1/message/action_message", new MessageActionHandler());
         newServer.createContext("/v1/nation/get_nation_information", new NationInformationHandler());
         newServer.createContext("/v1/nation/get_province_list", new ProvinceListHandler());
         newServer.createContext("/v1/nation/get_neighbor_civs", new NeighborCivsHandler());
