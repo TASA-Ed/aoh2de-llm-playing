@@ -23,15 +23,19 @@ public final class CurrentEventHandler extends GameRequestHandler {
 
         List<JSONObject> armies = new ArrayList<>();
         int totalTroops = 0;
+        int playerId = CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId();
 
         for (int i = 0; i < currentMove.getMoveUnitsSize(); i++) {
             MoveUnits army = currentMove.getMoveUnits(i);
             JSONObject armyInfo = new JSONObject();
 
-            armyInfo.put("attackerCivID", currentMove.getCivID(i));
-            armyInfo.put("fromProvinceID", army.getFromProviID());
-            armyInfo.put("toProvinceID", army.getToProvID());
+            int attackerCivId = currentMove.getCivID(i);
+
+            armyInfo.put("attackerCivId", attackerCivId);
+            armyInfo.put("fromProvinceId", army.getFromProviID());
+            armyInfo.put("toProvinceId", army.getToProvID());
             armyInfo.put("troops", army.getNumberOfUnits());
+            armyInfo.put("isPlayer", attackerCivId == playerId);
 
             totalTroops += army.getNumberOfUnits();
             armies.add(armyInfo);

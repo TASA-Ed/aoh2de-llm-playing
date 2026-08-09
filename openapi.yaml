@@ -648,5 +648,6 @@ components:
                   fromProvinceID: {$ref: '#/components/schemas/ProvinceId'}
                   toProvinceID: {$ref: '#/components/schemas/ProvinceId'}
                   troops: {type: integer, minimum: 0}
+                  isPlayer: {type: boolean}
             totalAttackingTroops: {type: integer, minimum: 0}
             defenderCivID: {$ref: '#/components/schemas/CivilizationId'}
