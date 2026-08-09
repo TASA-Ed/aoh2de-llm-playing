@@ -35,8 +35,6 @@ public final class LP {
         ExecutorService newExecutor = Executors.newCachedThreadPool(new DaemonThreadFactory());
         newServer.setExecutor(newExecutor);
         newServer.createContext("/v1/health", this::handleHealth);
-        newServer.createContext("/v1/turn/click_end_turn", new EndTurnHandler());
-        newServer.createContext("/v1/turn/get_stats", new TurnStatsHandler());
         newServer.createContext("/v1/army/move", new MoveArmyHandler());
         newServer.createContext("/v1/army/cancel_move", new CancelArmyMoveHandler());
         newServer.createContext("/v1/army/get_army_list", new ArmyListHandler());
@@ -44,13 +42,16 @@ public final class LP {
         newServer.createContext("/v1/diplomacy/get_stats", new DiplomacyStatsHandler());
         newServer.createContext("/v1/diplomacy/declare_war", new DeclareWarHandler());
         newServer.createContext("/v1/diplomacy/change_relation", new ChangeRelationHandler());
-        newServer.createContext("/v1/self/get_summary", new SelfSummaryHandler());
+        newServer.createContext("/v1/event/get_current_event", new CurrentEventHandler());
         newServer.createContext("/v1/message/get_message_list", new MessageListHandler());
         newServer.createContext("/v1/message/action_message", new MessageActionHandler());
         newServer.createContext("/v1/nation/get_nation_information", new NationInformationHandler());
         newServer.createContext("/v1/nation/get_province_list", new ProvinceListHandler());
         newServer.createContext("/v1/nation/get_neighbor_civs", new NeighborCivsHandler());
         newServer.createContext("/v1/province/get_information", new ProvinceInformationHandler());
+        newServer.createContext("/v1/self/get_summary", new SelfSummaryHandler());
+        newServer.createContext("/v1/turn/click_end_turn", new EndTurnHandler());
+        newServer.createContext("/v1/turn/get_stats", new TurnStatsHandler());
 
         try {
             newServer.start();

@@ -242,6 +242,18 @@ paths:
         '409': {$ref: '#/components/responses/Conflict'}
         '413': {$ref: '#/components/responses/PayloadTooLarge'}
         '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/event/get_current_event:
+    post:
+      tags: [Event]
+      summary: Get current military event
+      description: Gets the armies participating in the current military event, their combined attacking troops, and the defending civilization. Returns `NO_EVENT` when no event is active.
+      requestBody: {$ref: '#/components/requestBodies/EmptyObject'}
+      responses:
+        '200': {$ref: '#/components/responses/CurrentEventSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
 components:
   requestBodies:
     EmptyObject:
@@ -311,6 +323,9 @@ components:
     ProvinceInformationSuccess:
       description: Province information.
       content: {application/json: {schema: {$ref: '#/components/schemas/ProvinceInformationResponse'}}}
+    CurrentEventSuccess:
+      description: Current military event.
+      content: {application/json: {schema: {$ref: '#/components/schemas/CurrentEventResponse'}}}
   schemas:
     CivilizationId:
       type: integer
@@ -614,3 +629,24 @@ components:
                 supply: {type: integer, minimum: 1}
                 fort: {type: integer, minimum: 1}
                 watchTower: {type: integer, minimum: 1}
+    CurrentEventResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [armies, totalAttackingTroops, defenderCivID]
+          properties:
+            armies:
+              type: array
+              items:
+                type: object
+                required: [attackerCivID, fromProvinceID, toProvinceID, troops]
+                properties:
+                  attackerCivID: {$ref: '#/components/schemas/CivilizationId'}
+                  fromProvinceID: {$ref: '#/components/schemas/ProvinceId'}
+                  toProvinceID: {$ref: '#/components/schemas/ProvinceId'}
+                  troops: {type: integer, minimum: 0}
+            totalAttackingTroops: {type: integer, minimum: 0}
+            defenderCivID: {$ref: '#/components/schemas/CivilizationId'}
