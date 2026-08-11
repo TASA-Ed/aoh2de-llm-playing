@@ -2,7 +2,7 @@
   "id": "top.tasaed.aoh2de.llm.playing",
   "name": "LLM Playing",
   "version": "0.1.0",
-  "sdkVersion": ">=1.5.3",
+  "sdkVersion": ">=1.6.0",
   "hasTweaker": false,
   "useLuminosity": true,
   "tweakClasses": [
