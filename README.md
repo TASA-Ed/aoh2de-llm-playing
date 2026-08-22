@@ -2,9 +2,51 @@
 
 让 LLM 游玩《历史时代 2：DE》（Age of History II: Definitive Edition）。（服务端）
 
+QQ 群：[597524393](https://qm.qq.com/cgi-bin/qm/qr?k=meZHnANAtGqxFXNHBnad1m1ms3li_Pgj&jump_from=webapi&authKey=YfabJovSWyCBqhrV7B5VWkVSG5hQTsd19AEvjMTFy2jafZ9goaIlJOm9jh7dv6f/)。
+
 本项目为 Finality Framework 插件，依赖于 [Finality Loader](https://github.com/Finality-Framework/loader) 启动。
 
 如果你需要 Agent，可以使用 [LLM Playing Agent](https://github.com/TASA-Ed/aoh2de-llm-playing-agent)。
+
+```mermaid
+flowchart TB
+
+    subgraph A["LLM Playing Agent"]
+        A1["Node.js"]
+        A4["velin-react<br/>加载 TSX 提示词"]
+        A5["注册 LLM Tools"]
+        A6["Agent Loop"]
+        A7["Vercel AI SDK 请求模型"]
+        A8["LLM"]
+        A9["LLM 用工具"]
+        A10["LLM 结束回合"]
+        A11["LLM 返回回合总结到 CLI"]
+
+        A1 --> A4 --> A5 --> A6
+        A6 --> A7 --> A8
+        A8 --> A9 --> A6
+        A8 --> A10 --> A11 --> A6
+    end
+
+    subgraph B["aoh2de-llm-playing"]
+        B1["finality-framework 框架加载"]
+        B3["MixinAoCGame.java<br/>注入 create 方法"]
+        B4["启动 HTTP 服务器<br/>127.0.0.1:8080"]
+        B5["LP.java<br/>注册 Handler 到路由"]
+
+        B6["/v1/turn/click_end_turn<br/>EndTurnHandler.java"]
+        B7["/v1/nation/get_nation_information<br/>NationInformationHandler.java"]
+        B8["/v1/self/get_summary<br/>SelfSummaryHandler.java"]
+
+        B1 --> B3 --> B4 --> B5
+        B5 --> B6
+        B5 --> B7
+        B5 --> B8
+    end
+
+    A9 -->|"LLM Tool 调用"| B4
+    B4 -->|"HTTP"| A9
+```
 
 ## 功能
 
