@@ -26,12 +26,12 @@ public final class LP {
         return Holder.INSTANCE;
     }
 
-    public synchronized void start(int port) throws IOException {
+    public synchronized void start(String host, int port) throws IOException {
         if (server != null) {
             return;
         }
 
-        HttpServer newServer = HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0);
+        HttpServer newServer = HttpServer.create(new InetSocketAddress(host, port), 0);
         ExecutorService newExecutor = Executors.newCachedThreadPool(new DaemonThreadFactory());
         newServer.setExecutor(newExecutor);
         newServer.createContext("/v1/health", this::handleHealth);
