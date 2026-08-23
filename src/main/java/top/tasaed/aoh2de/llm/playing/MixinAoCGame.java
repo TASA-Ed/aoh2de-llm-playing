@@ -25,7 +25,15 @@ public class MixinAoCGame {
             }
             throw new IOException("no available port was found after 10 attempts");
         } catch (IOException e) {
-            FinalityLogger.error("Failed to start the server:", e);
+            FinalityLogger.error("[LP] Failed to start the server:", e);
+        }
+    }
+
+    @Inject(methodName = "dispose")
+    private static void preDispose(CallbackInfo callbackInfo) {
+        if (LP.getInstance().isRunning()) {
+            LP.getInstance().stop();
+            FinalityLogger.info("[LP] LLM Playing HTTP server stopped.");
         }
     }
 }

@@ -6,6 +6,7 @@
   "hasTweaker": false,
   "useLuminosity": true,
   "tweakClasses": [
-    "top.tasaed.aoh2de.llm.playing.MixinAoCGame"
+    "top.tasaed.aoh2de.llm.playing.MixinAoCGame",
+    "top.tasaed.aoh2de.llm.playing.MixinCFG"
   ]
 }
