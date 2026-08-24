@@ -2,7 +2,7 @@
 
 让 LLM 游玩《历史时代 2：DE》（Age of History II: Definitive Edition）。（服务端）
 
-QQ 群：[597524393](https://qm.qq.com/cgi-bin/qm/qr?k=meZHnANAtGqxFXNHBnad1m1ms3li_Pgj&jump_from=webapi&authKey=YfabJovSWyCBqhrV7B5VWkVSG5hQTsd19AEvjMTFy2jafZ9goaIlJOm9jh7dv6f/)。
+QQ 群：[597524393](https://qm.qq.com/q/nC2N5Y1UX0)。
 
 本项目为 Finality Framework 插件，依赖于 [Finality Loader](https://github.com/Finality-Framework/loader) 启动。
 
