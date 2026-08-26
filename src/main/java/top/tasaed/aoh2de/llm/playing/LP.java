@@ -39,6 +39,9 @@ public final class LP {
         newServer.createContext("/v1/army/cancel_move", new CancelArmyMoveHandler());
         newServer.createContext("/v1/army/get_army_list", new ArmyListHandler());
         newServer.createContext("/v1/building/construct", new ConstructBuildingHandler());
+        newServer.createContext("/v1/self/set_budget_spending", new BudgetSpendingHandler());
+        newServer.createContext("/v1/self/get_budget_spending_info", new BudgetSpendingInfoHandler());
+        newServer.createContext("/v1/self/get_civilization_view", new CivilizationViewHandler());
         newServer.createContext("/v1/diplomacy/get_stats", new DiplomacyStatsHandler());
         newServer.createContext("/v1/diplomacy/declare_war", new DeclareWarHandler());
         newServer.createContext("/v1/diplomacy/change_relation", new ChangeRelationHandler());

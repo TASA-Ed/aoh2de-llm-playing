@@ -165,6 +165,53 @@ paths:
         '400': {$ref: '#/components/responses/BadRequest'}
         '413': {$ref: '#/components/responses/PayloadTooLarge'}
         '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/self/set_budget_spending:
+    post:
+      tags: [Self]
+      summary: Set civilization budget spending
+      description: Sets the Taxes, Goods, Research and Investments sliders from the civilization view. Values are percentages from 0 to 100. Military spending is preserved and the three requested budget spending values must fit within the 100% budget. When the budget is non-positive, Goods, Research and Investments are set to zero, matching the game UI.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/BudgetSpendingRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/BudgetSpendingSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/self/get_budget_spending_info:
+    post:
+      tags: [Self]
+      summary: Get budget spending information
+      description: |
+        Retrieves current budget spending values and negative growth thresholds.
+        
+        **Thresholds**:
+        - `min_goods`: If Goods spending is below this value, population will experience negative growth
+        - `min_investments`: If Investments spending is below this value, economy will experience negative growth  
+        - `max_taxes`: If Taxes are above this value, happiness will experience negative growth
+        
+        These thresholds are determined by the civilization's ideology, religion, and administration policy.
+      requestBody: {$ref: '#/components/requestBodies/EmptyObject'}
+      responses:
+        '200': {$ref: '#/components/responses/BudgetSpendingInfoSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/self/get_civilization_view:
+    post:
+      tags: [Self]
+      summary: Get civilization view
+      description: Retrieve the comprehensive civilization statistics displayed in the player's CivilizationView, including territory, population, military, economy, technology, development, inflation, nuclear weapons, happiness, stability, ranking, sanctions, government, religion, and game settings.
+      requestBody: {$ref: '#/components/requestBodies/EmptyObject'}
+      responses:
+        '200': {$ref: '#/components/responses/CivilizationViewSuccess'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
   /v1/message/get_message_list:
     post:
       tags: [Message]
@@ -308,12 +355,21 @@ components:
     SelfSummarySuccess:
       description: Player summary.
       content: {application/json: {schema: {$ref: '#/components/schemas/SelfSummaryResponse'}}}
+    BudgetSpendingSuccess:
+      description: Budget spending was updated.
+      content: {application/json: {schema: {$ref: '#/components/schemas/BudgetSpendingResponse'}}}
+    BudgetSpendingInfoSuccess:
+      description: Budget spending information retrieved.
+      content: {application/json: {schema: {$ref: '#/components/schemas/BudgetSpendingInfoResponse'}}}
     MessageListSuccess:
       description: Messages currently waiting for the player.
       content: {application/json: {schema: {$ref: '#/components/schemas/MessageListResponse'}}}
     NationInformationSuccess:
       description: Nation information.
       content: {application/json: {schema: {$ref: '#/components/schemas/NationInformationResponse'}}}
+    CivilizationViewSuccess:
+      description: Civilization view statistics.
+      content: {application/json: {schema: {$ref: '#/components/schemas/CivilizationViewResponse'}}}
     ProvinceListSuccess:
       description: Province list.
       content: {application/json: {schema: {$ref: '#/components/schemas/ProvinceListResponse'}}}
@@ -388,6 +444,15 @@ components:
           type: string
           enum: [farm, port, fort, tower, library, armoury, workshop, market, supply]
           description: Input is trimmed and converted to lowercase by the service.
+    BudgetSpendingRequest:
+      type: object
+      additionalProperties: false
+      required: [goods, research, investments, taxes]
+      properties:
+        goods: {type: number, minimum: 0, maximum: 100, description: Goods spending percentage.}
+        research: {type: number, minimum: 0, maximum: 100, description: Research spending percentage.}
+        investments: {type: number, minimum: 0, maximum: 100, description: Investments spending percentage.}
+        taxes: {type: number, minimum: 0, maximum: 100, description: Taxation level percentage.}
     ChangeRelationRequest:
       type: object
       additionalProperties: false
@@ -529,6 +594,57 @@ components:
             expenses: {type: integer}
             warWeariness: {type: integer}
             atWar: {type: boolean}
+    BudgetSpendingResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [civilizationId, goods, research, investments, taxes, military, budget]
+          properties:
+            civilizationId: {$ref: '#/components/schemas/CivilizationId'}
+            goods: {type: number, minimum: 0, maximum: 100}
+            research: {type: number, minimum: 0, maximum: 100}
+            investments: {type: number, minimum: 0, maximum: 100}
+            taxes: {type: number, minimum: 0, maximum: 100}
+            military: {type: integer, minimum: 0, maximum: 100}
+            budget: {type: integer}
+    BudgetSpendingInfoResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [budget, current, thresholds, status]
+          properties:
+            budget:
+              type: integer
+              description: Current civilization budget
+            current:
+              type: object
+              required: [goods, research, investments, taxes, military]
+              properties:
+                goods: {type: number, minimum: 0, maximum: 100, description: Current goods spending percentage}
+                research: {type: number, minimum: 0, maximum: 100, description: Current research spending percentage}
+                investments: {type: number, minimum: 0, maximum: 100, description: Current investments spending percentage}
+                taxes: {type: number, minimum: 0, maximum: 100, description: Current taxation level percentage}
+                military: {type: integer, minimum: 0, maximum: 100, description: Current military spending percentage}
+            thresholds:
+              type: object
+              required: [min_goods, min_investments, max_taxes]
+              properties:
+                min_goods: {type: number, description: Minimum goods spending to avoid population negative growth}
+                min_investments: {type: number, description: Minimum investments spending to avoid economy negative growth}
+                max_taxes: {type: number, description: Maximum taxation to avoid happiness negative growth}
+            status:
+              type: object
+              required: [goods_sufficient, investments_sufficient, taxes_acceptable]
+              properties:
+                goods_sufficient: {type: boolean, description: Whether current goods spending meets the minimum requirement}
+                investments_sufficient: {type: boolean, description: Whether current investments spending meets the minimum requirement}
+                taxes_acceptable: {type: boolean, description: Whether current taxation is below the maximum acceptable level}
     MessageListResponse:
       type: object
       required: [success, result]
@@ -574,6 +690,135 @@ components:
             holyRomanEmpireMember: {type: boolean}
             rankPosition: {type: integer}
             rankScore: {type: integer}
+    CivilizationViewResponse:
+      type: object
+      required: [success, result]
+      properties:
+        success: {type: boolean, const: true}
+        result:
+          type: object
+          required: [basicInfo, territoryInfo, populationInfo, militaryInfo, economyInfo, technologyInfo, developmentInfo, inflationInfo, nukesInfo, happinessInfo, stabilityInfo, rankInfo, sanctionsInfo, governmentInfo, religionInfo, gameSettingsInfo]
+          properties:
+            basicInfo:
+              type: object
+              required: [civilizationId, name, capitalProvinceId]
+              properties:
+                civilizationId: {$ref: '#/components/schemas/CivilizationId'}
+                name: {type: string}
+                capitalProvinceId: {$ref: '#/components/schemas/ProvinceId'}
+                capitalName: {type: string}
+                allianceId: {type: integer}
+                allianceName: {type: string}
+                allianceMembers:
+                  type: array
+                  items:
+                    type: object
+                    required: [civilizationId, name]
+                    properties:
+                      civilizationId: {$ref: '#/components/schemas/CivilizationId'}
+                      name: {type: string}
+            territoryInfo:
+              type: object
+              required: [numberOfProvinces, provincesByTerrain]
+              properties:
+                numberOfProvinces: {type: integer}
+                provincesByTerrain:
+                  type: array
+                  items:
+                    type: object
+                    required: [terrainTypeId, terrainName, provinceCount]
+                    properties:
+                      terrainTypeId: {type: integer}
+                      terrainName: {type: string}
+                      provinceCount: {type: integer}
+            populationInfo:
+              type: object
+              required: [totalPopulation]
+              properties:
+                totalPopulation: {type: integer}
+            militaryInfo:
+              type: object
+              required: [numberOfUnits, militaryUpkeep, upkeepPerUnit, warWeariness]
+              properties:
+                numberOfUnits: {type: integer}
+                militaryUpkeep: {type: integer}
+                upkeepPerUnit: {type: number}
+                warWeariness: {type: number}
+            economyInfo:
+              type: object
+              required: [totalEconomy, startingEconomy, economyDifference, overinvestmentPenalty, unemploymentPopulation, unemploymentPercentage]
+              properties:
+                totalEconomy: {type: integer}
+                startingEconomy: {type: integer}
+                economyDifference: {type: integer}
+                overinvestmentPenalty: {type: number}
+                unemploymentPopulation: {type: integer}
+                unemploymentPercentage: {type: number}
+            technologyInfo:
+              type: object
+              required: [technologyLevel]
+              properties:
+                technologyLevel: {type: number}
+            developmentInfo:
+              type: object
+              required: [averageDevelopment, averageDevelopmentFloat, developmentPercentageOfTech]
+              properties:
+                averageDevelopment: {type: integer}
+                averageDevelopmentFloat: {type: number}
+                developmentPercentageOfTech: {type: integer}
+            inflationInfo:
+              type: object
+              required: [inflationCost, inflationPercentage]
+              properties:
+                inflationCost: {type: integer}
+                inflationPercentage: {type: number}
+            nukesInfo:
+              type: object
+              required: [numberOfNukes, nukesLimit]
+              properties:
+                numberOfNukes: {type: integer}
+                nukesLimit: {type: integer}
+            happinessInfo:
+              type: object
+              required: [happiness]
+              properties:
+                happiness: {type: integer}
+            stabilityInfo:
+              type: object
+              required: [stability]
+              properties:
+                stability: {type: integer}
+            rankInfo:
+              type: object
+              required: [rankPosition, rankScore]
+              properties:
+                rankPosition: {type: integer}
+                rankScore: {type: integer}
+            sanctionsInfo:
+              type: object
+              required: [sanctionsImpact]
+              properties:
+                sanctionsImpact: {type: number}
+            governmentInfo:
+              type: object
+              required: [ideologyId, ideologyName]
+              properties:
+                ideologyId: {type: integer}
+                ideologyName: {type: string}
+            religionInfo:
+              type: object
+              required: [religionId, religionName]
+              properties:
+                religionId: {type: integer}
+                religionName: {type: string}
+            gameSettingsInfo:
+              type: object
+              required: [difficulty, difficultyName, armyRetreatThreshold, capitulationThreshold]
+              properties:
+                difficulty: {type: integer}
+                difficultyName: {type: string}
+                armyRetreatThreshold: {type: integer}
+                capitulationThreshold: {type: integer}
     ProvinceListResponse:
       type: object
       required: [success, result]
