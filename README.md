@@ -37,11 +37,13 @@ flowchart TB
         B6["/v1/turn/click_end_turn<br/>EndTurnHandler.java"]
         B7["/v1/nation/get_nation_information<br/>NationInformationHandler.java"]
         B8["/v1/self/get_summary<br/>SelfSummaryHandler.java"]
+        B9["..."]
 
         B1 --> B3 --> B4 --> B5
         B5 --> B6
         B5 --> B7
         B5 --> B8
+        B5 --> B9
     end
 
     A9 -->|"LLM Tool 调用"| B4

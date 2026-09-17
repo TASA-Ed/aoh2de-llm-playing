@@ -11,6 +11,7 @@ public class MixinAoCGame {
     @Inject(methodName = "create")
     private static void preCreate(CallbackInfo callbackInfo) {
         try {
+            FinalityLogger.info("[LP] LLM Playing " + LP.VERSION + " starting...");
             LPConfig config = FileUtil.loadConfig();
             String host = config.getHost();
             int port = config.getPort();

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: LLM Tools API
-  version: 1.0.0
+  version: 0.2.0
   description: |
     由 LP 启动的本地游戏工具服务，仅监听 `127.0.0.1:<port>`。
     除健康检查外，所有接口均为 POST，使用 UTF-8 JSON 请求和响应。请求体最大为 64 KiB；空请求体等同于 `{}`。
@@ -189,12 +189,12 @@ paths:
       summary: Get budget spending information
       description: |
         Retrieves current budget spending values and negative growth thresholds.
-        
+
         **Thresholds**:
         - `min_goods`: If Goods spending is below this value, population will experience negative growth
-        - `min_investments`: If Investments spending is below this value, economy will experience negative growth  
+        - `min_investments`: If Investments spending is below this value, economy will experience negative growth
         - `max_taxes`: If Taxes are above this value, happiness will experience negative growth
-        
+
         These thresholds are determined by the civilization's ideology, religion, and administration policy.
       requestBody: {$ref: '#/components/requestBodies/EmptyObject'}
       responses:

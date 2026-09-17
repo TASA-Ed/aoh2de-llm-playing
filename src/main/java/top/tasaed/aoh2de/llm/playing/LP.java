@@ -23,6 +23,8 @@ public final class LP {
         private static final LP INSTANCE = new LP();
     }
 
+    public static String VERSION = "0.2.0";
+
     public static LP getInstance() {
         return Holder.INSTANCE;
     }
