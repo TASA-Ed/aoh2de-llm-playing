@@ -34,6 +34,24 @@ public final class DiplomacyStatsHandler extends GameRequestHandler {
         result.put("nonAggressionPactTurns", CFG.core.getCivNonAggressionPact(playerId, civId));
         result.put("defensivePactTurns", CFG.core.getDefensivePact(playerId, civId));
         result.put("guaranteeTurns", CFG.core.getGuarantee(playerId, civId));
+        result.put(
+                "diplomaticRelationsSuspended",
+                CFG.core.getCiv(civId).getCivDiploGD().getIsEmbassyClosed(playerId));
+        result.put(
+                "diplomaticRelationsSuspendedTurns",
+                CFG.core.getCiv(civId).getCivDiploGD().isEmbassyClosed_Turns(playerId));
+
+        result.put(
+                "improvingRelationsWith",
+                CFG.core.getCiv(playerId).getCivDiploGD().getIsImprovingRelations(civId));
+        result.put(
+                "improvingRelationsWithTurns",
+                CFG.core.getCiv(playerId).getCivDiploGD().getIsImprovingRelationsTurns(civId));
+        result.put(
+                "improvingRelationsFrom", CFG.core.getCiv(civId).getCivDiploGD().getIsImprovingRelations(playerId));
+        result.put(
+                "improvingRelationsFromTurns",
+                CFG.core.getCiv(civId).getCivDiploGD().getIsImprovingRelationsTurns(playerId));
 
         result.put(
                 "isAllied",

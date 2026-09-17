@@ -24,6 +24,6 @@
 
 ## 规范
 
-- 添加或编辑路由后，务必同时编辑 OpenAPI 文档。 
+- 添加或编辑路由后，务必同时编辑 OpenAPI 文档，使用 `./gradlew lintOpenApi` 检测格式。 
 - 编辑代码后运行 `./gradlew spotlessApply` 和 `./gradlew build` 保证代码无误。
 - 路由一般以 `/v1` 开头，如：`/v1/message/action_message`。

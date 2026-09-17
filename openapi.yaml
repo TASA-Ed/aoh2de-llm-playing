@@ -144,6 +144,7 @@ paths:
     post:
       tags: [Diplomacy]
       summary: Change diplomatic relation
+      description: Improves relations or sends a diplomatic insult. An insult cancels both civilizations' improve-relations actions and suspends diplomatic relations for the requested number of turns. Improving relations fails with DIPLOMATIC_RELATIONS_SUSPENDED when the target civilization has closed its embassy to the current player.
       requestBody:
         required: true
         content:
@@ -560,7 +561,7 @@ components:
         success: {type: boolean, const: true}
         result:
           type: object
-          required: [our_opinion, their_opinion, atWar, truceTurns, militaryAccessTurns, nonAggressionPactTurns, defensivePactTurns, guaranteeTurns, isAllied]
+          required: [our_opinion, their_opinion, atWar, truceTurns, militaryAccessTurns, nonAggressionPactTurns, defensivePactTurns, guaranteeTurns, diplomaticRelationsSuspended, diplomaticRelationsSuspendedTurns, improvingRelationsWith, improvingRelationsWithTurns, improvingRelationsFrom, improvingRelationsFromTurns, isAllied]
           properties:
             our_opinion: {type: integer}
             their_opinion: {type: integer}
@@ -570,6 +571,24 @@ components:
             nonAggressionPactTurns: {type: integer}
             defensivePactTurns: {type: integer}
             guaranteeTurns: {type: integer}
+            diplomaticRelationsSuspended:
+              type: boolean
+              description: Whether the target civilization has closed its embassy to the current player (DiplomaticRelationsAreSuspended), blocking the player's improve-relations action.
+            diplomaticRelationsSuspendedTurns:
+              type: integer
+              description: Remaining turns of the target civilization's embassy closure to the current player. Returns 0 when no closure exists.
+            improvingRelationsWith:
+              type: boolean
+              description: Whether the current player civilization is improving relations with the requested civilization.
+            improvingRelationsWithTurns:
+              type: integer
+              description: Remaining turns for the current player civilization's improve-relations action toward the requested civilization. Returns -1 when no action exists.
+            improvingRelationsFrom:
+              type: boolean
+              description: Whether the requested civilization is improving relations with the current player civilization (ImprovingRelationsFrom).
+            improvingRelationsFromTurns:
+              type: integer
+              description: Remaining turns for the requested civilization's improve-relations action toward the current player civilization. Returns -1 when no action exists.
             isAllied: {type: boolean}
     SelfSummaryResponse:
       type: object

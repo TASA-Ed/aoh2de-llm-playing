@@ -34,7 +34,7 @@ public final class ChangeRelationHandler extends GameRequestHandler {
         Civilization player = CFG.core.getCiv(playerId);
 
         switch (type) {
-            case "decrease":
+            case "decrease": // 外交侮辱
                 int decreaseMin = GameValues.gvRelationDecrease.SUSPEND_DIPLOMATIC_RELATIONS_MIN;
                 int decreaseMax = GameValues.gvRelationDecrease.SUSPEND_DIPLOMATIC_RELATIONS_MAX;
                 if (turns < decreaseMin || turns > decreaseMax) {
@@ -55,7 +55,13 @@ public final class ChangeRelationHandler extends GameRequestHandler {
 
                 GameManager.decreaseRelation(playerId, civId, turns);
                 break;
-            case "improve":
+            case "improve": // 改善关系
+                if (CFG.core.getCiv(civId).getCivDiploGD().getIsEmbassyClosed(playerId)) {
+                    return HttpResponses.error(
+                            "DIPLOMATIC_RELATIONS_SUSPENDED",
+                            "Cannot improve relations while diplomatic relations are suspended.");
+                }
+
                 int max = GameValues.gvRelationImprove.IMPROVE_RELATIONS_MAX_NUM_OF_TURNS;
                 if (turns < 1 || turns > max) {
                     return HttpResponses.error(
