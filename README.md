@@ -66,13 +66,22 @@ flowchart TB
 
 在创意工坊中订阅 [LLM Playing](https://steamcommunity.com/sharedfiles/filedetails/?id=3785324635)，随后使用 [Finality Loader](https://github.com/Finality-Framework/loader) 启动游戏。
 
-插件将在游戏创建时启动服务器，目前会优先使用 `8080`，若端口被占用，则依次尝试至 `8089`。最终的监听地址会输出到 Finality Loader 日志（或终端中，如果你使用命令行启动 Loader），如：
+插件将在游戏创建时启动服务器，目前默认监听 `127.0.0.1:8080`，你可以创建 `<游戏根目录>/LP_config.json` 文件来指定监听地址和端口：
+
+```json
+{
+  "host": "127.0.0.1",
+  "port": 8080
+}
+```
+
+最终的监听地址会输出到 Finality Loader 日志（或终端中，如果你使用命令行启动 Loader），如：
 
 ```text
 [I] LLM Playing HTTP server started at http://127.0.0.1:8080
 ```
 
-如果全部 10 个端口都被占用，服务器将不会启动。请尝试释放其中一个端口后重启游戏。
+若端口被占用，服务器将不会启动。
 
 启动 [LLM Playing Agent](https://github.com/TASA-Ed/aoh2de-llm-playing-agent)（可选）。
 
@@ -114,7 +123,7 @@ flowchart TB
 # 格式化 Java 源码
 .\gradlew.bat spotlessApply
 
-# 校验 OpenAPI 文档（需要可用的 pnpx / npm 环境）
+# 校验 OpenAPI 文档（需要可用的 pnpm / node 环境）
 .\gradlew.bat lintOpenApi
 ```
 
