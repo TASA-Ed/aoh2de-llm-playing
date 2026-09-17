@@ -1,10 +1,10 @@
 package top.tasaed.aoh2de.llm.playing;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
 public final class HttpResponses {
     private HttpResponses() {}
@@ -33,11 +33,18 @@ public final class HttpResponses {
     }
 
     public static void sendJson(HttpExchange exchange, int statusCode, JSONObject response) throws IOException {
-        byte[] body = response.toJSONString().getBytes(StandardCharsets.UTF_8);
-        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
-        exchange.sendResponseHeaders(statusCode, body.length);
-        try (OutputStream output = exchange.getResponseBody()) {
-            output.write(body);
+        send(exchange, statusCode, "application/json; charset=utf-8", JSON.toJSONBytes(response));
+    }
+
+    static void send(HttpExchange exchange, int statusCode, String contentType, byte[] body) throws IOException {
+        try {
+            exchange.getResponseHeaders().set("Content-Type", contentType);
+            exchange.sendResponseHeaders(statusCode, body.length);
+            try (OutputStream output = exchange.getResponseBody()) {
+                output.write(body);
+            }
+        } finally {
+            exchange.close();
         }
     }
 }

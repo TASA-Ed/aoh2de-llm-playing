@@ -3,7 +3,6 @@ package top.tasaed.aoh2de.llm.playing;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
@@ -13,6 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import top.tasaed.aoh2de.llm.playing.handlers.*;
 
 public final class LP {
+    private static final byte[] HEALTH_RESPONSE = "OK".getBytes(StandardCharsets.UTF_8);
+
     private HttpServer server;
     private ExecutorService executor;
 
@@ -31,9 +32,33 @@ public final class LP {
             return;
         }
 
-        HttpServer newServer = HttpServer.create(new InetSocketAddress(host, port), 0);
+        InetSocketAddress address = new InetSocketAddress(host, port);
         ExecutorService newExecutor = Executors.newCachedThreadPool(new DaemonThreadFactory());
-        newServer.setExecutor(newExecutor);
+        HttpServer newServer = null;
+        boolean started = false;
+        try {
+            newServer = HttpServer.create();
+            newServer.setExecutor(newExecutor);
+            registerRoutes(newServer);
+            newServer.bind(address, 0);
+            newServer.start();
+            server = newServer;
+            executor = newExecutor;
+            started = true;
+        } finally {
+            if (!started) {
+                try {
+                    if (newServer != null) {
+                        newServer.stop(0);
+                    }
+                } finally {
+                    newExecutor.shutdownNow();
+                }
+            }
+        }
+    }
+
+    private void registerRoutes(HttpServer newServer) {
         newServer.createContext("/v1/health", this::handleHealth);
         newServer.createContext("/v1/army/move", new MoveArmyHandler());
         newServer.createContext("/v1/army/cancel_move", new CancelArmyMoveHandler());
@@ -55,15 +80,6 @@ public final class LP {
         newServer.createContext("/v1/self/get_summary", new SelfSummaryHandler());
         newServer.createContext("/v1/turn/click_end_turn", new EndTurnHandler());
         newServer.createContext("/v1/turn/get_stats", new TurnStatsHandler());
-
-        try {
-            newServer.start();
-            server = newServer;
-            executor = newExecutor;
-        } catch (RuntimeException exception) {
-            newExecutor.shutdownNow();
-            throw exception;
-        }
     }
 
     public synchronized HttpServer getServer() {
@@ -82,19 +98,20 @@ public final class LP {
             return;
         }
 
-        server.stop(0);
-        executor.shutdownNow();
-        server = null;
-        executor = null;
+        try {
+            server.stop(0);
+        } finally {
+            try {
+                executor.shutdownNow();
+            } finally {
+                server = null;
+                executor = null;
+            }
+        }
     }
 
     private void handleHealth(HttpExchange exchange) throws IOException {
-        byte[] response = "OK".getBytes(StandardCharsets.UTF_8);
-        exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=utf-8");
-        exchange.sendResponseHeaders(200, response.length);
-        try (OutputStream output = exchange.getResponseBody()) {
-            output.write(response);
-        }
+        HttpResponses.send(exchange, 200, "text/plain; charset=utf-8", HEALTH_RESPONSE);
     }
 
     private static final class DaemonThreadFactory implements ThreadFactory {

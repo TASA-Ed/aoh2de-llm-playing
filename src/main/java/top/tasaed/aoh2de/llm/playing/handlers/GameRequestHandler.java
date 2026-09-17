@@ -2,14 +2,15 @@ package top.tasaed.aoh2de.llm.playing.handlers;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import top.tasaed.aoh2de.llm.playing.HttpResponses;
 
 abstract class GameRequestHandler implements HttpHandler {
@@ -25,6 +26,14 @@ abstract class GameRequestHandler implements HttpHandler {
 
     @Override
     public final void handle(HttpExchange exchange) throws IOException {
+        try {
+            handleRequest(exchange);
+        } finally {
+            exchange.close();
+        }
+    }
+
+    private void handleRequest(HttpExchange exchange) throws IOException {
         if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
             exchange.getResponseHeaders().set("Allow", "POST");
             HttpResponses.sendJson(
@@ -32,7 +41,8 @@ abstract class GameRequestHandler implements HttpHandler {
             return;
         }
 
-        if (Gdx.app == null) {
+        Application application = Gdx.app;
+        if (application == null) {
             HttpResponses.sendJson(
                     exchange, 503, HttpResponses.error("GAME_NOT_READY", "The game application is not ready."));
             return;
@@ -55,19 +65,22 @@ abstract class GameRequestHandler implements HttpHandler {
             return;
         }
 
-        CompletableFuture<JSONObject> result = new CompletableFuture<>();
-        Gdx.app.postRunnable(() -> {
-            try {
-                result.complete(handleOnGameThread(request));
-            } catch (Throwable throwable) {
-                result.completeExceptionally(throwable);
-            }
-        });
+        FutureTask<JSONObject> result = new FutureTask<>(() -> handleOnGameThread(request));
+        try {
+            application.postRunnable(result);
+        } catch (RuntimeException exception) {
+            result.cancel(false);
+            exception.printStackTrace();
+            HttpResponses.sendJson(exchange, 500, HttpResponses.error(failureCode, failureMessage));
+            return;
+        }
 
         try {
             JSONObject response = result.get();
             HttpResponses.sendJson(exchange, response.getBooleanValue("success") ? 200 : 409, response);
         } catch (InterruptedException exception) {
+            // Skip queued work without interrupting an operation already running on the game thread.
+            result.cancel(false);
             Thread.currentThread().interrupt();
             HttpResponses.sendJson(
                     exchange, 500, HttpResponses.error("REQUEST_INTERRUPTED", "The request was interrupted."));
