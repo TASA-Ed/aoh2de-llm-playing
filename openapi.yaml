@@ -3,17 +3,30 @@ info:
   title: LLM Tools API
   version: 0.2.0
   description: |
-    由 LP 启动的本地游戏工具服务，仅监听 `127.0.0.1:<port>`。
+    由 LP 启动的游戏工具服务，通过游戏根目录 LP_Config.json 的 mode 选择 http-server（默认）、ws-server 或 ws-client。
+    本 OpenAPI 描述 http-server 模式；监听地址由 host / port 指定，默认 127.0.0.1:8080。
     除健康检查外，所有接口均为 POST，使用 UTF-8 JSON 请求和响应。请求体最大为 64 KiB；空请求体等同于 `{}`。
+    路径精确匹配；未知路径返回 404，方法不匹配返回 405（HTTP 响应包含 Allow 头）。
+    两种 WebSocket 模式复用本文的路径、方法、请求参数与响应体，不同时提供 HTTP 游戏接口。
+    ws-server 使用 Javalin 监听 host / port / wsPath（默认 /ws）；ws-client 使用 java.net.http.WebSocket 主动连接 wsUrl。
+    WebSocket 请求为文本 JSON 消息，例如 `{"id":"req-1","method":"POST","path":"/v1/self/get_summary","body":{}}`。
+    id 为必填非空字符串，method / path 为必填字符串，body 为可省略的对象（省略等同于 `{}`）。整条消息（包括信封）最大为 64 KiB UTF-8 字节。
+    WebSocket 响应为 `{"id":"req-1","status":200,"body":{...}}`；status 对应 HTTP 状态码，body 为本文描述的响应。
+    WebSocket 健康检查返回 `{"id":"req-1","status":200,"body":"OK"}`。无效消息返回 400；无法取得有效 ID 时 id 为 null。
+    WebSocket 支持分片文本消息，超大消息以 1009 关闭，二进制消息以 1003 关闭（服务端超大二进制消息优先使用 1009）。
     游戏操作在主线程串行执行；会改变游戏状态的调用应按顺序安排。
-    服务端请求处理线程被中断时，将取消尚未开始的游戏操作；已开始执行的操作不会被中断或回滚。
+    服务关闭、WebSocket 连接断开或请求处理线程中断时，将取消尚未开始的游戏操作；已开始执行的操作不会被中断或回滚。
+    WebSocket 客户端连接失败或断开后不会自动重连，也不重试游戏操作。配置示例及完整消息协议见 README.md。
 servers:
-  - url: http://127.0.0.1:{port}
-    description: LP-started local service
+  - url: http://{host}:{port}
+    description: LP HTTP server mode
     variables:
+      host:
+        default: '127.0.0.1'
+        description: Host configured in LP_Config.json for http-server mode.
       port:
         default: '8080'
-        description: Port selected when LP starts the service.
+        description: Port configured in LP_Config.json for http-server mode.
 security: []
 paths:
   /v1/health:

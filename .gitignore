@@ -26,3 +26,7 @@ ref
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+.vscode
+.idea
+.zed

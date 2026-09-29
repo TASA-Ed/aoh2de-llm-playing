@@ -6,9 +6,9 @@
 
 ## 项目概览
 
-- 游戏启动后自动启动本地 HTTP 服务，供 LLM Agent、脚本或其他工具调用。
+- 游戏启动后按配置启动一种传输模式，供 LLM Agent、脚本或其他工具调用；HTTP / WS 服务端使用 Javalin，WS 客户端使用 `java.net.http.WebSocket`。
 - 提供国家、地区、军队、外交、建筑和回合等事件查询与操作。
-- 所有游戏读写都切换到游戏主线程执行，避免直接从 HTTP 工作线程访问游戏状态。
+- 三种模式复用相同的路由与业务处理；所有游戏读写都切换到游戏主线程执行，避免直接从网络线程访问游戏状态。
 
 ## 项目结构
 
@@ -16,9 +16,10 @@
   - `resources/plugin.json` Finality Framework 插件元数据。
   - `java/top/tasaed/aoh2de/llm/playing/`
     - `MixinAoCGame.java` Inject 游戏启动类，用于调用 `LP.java`。
-    - `LP.java` 启动本地 HTTP 服务，注册路由。
+    - `LP.java` 启动服务，按配置启动一种传输模式。
+    - `LPConfig.java` 配置类
     - `HttpResponses.java` Http 响应工具。 
-    - `handlers/` 路由处理。
+    - `handlers/` 路由/方法处理。
 - `lib/` Finality Framework Loader（`loader.jar`），游戏（`game.jar`） 依赖。
 - `openapi.yaml` 路由的 OpenAPI 文档。
 

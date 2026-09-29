@@ -13,21 +13,28 @@ public class MixinAoCGame {
         try {
             FinalityLogger.info("[LP] LLM Playing " + LP.VERSION + " starting...");
             LPConfig config = FileUtil.loadConfig();
-            String host = config.getHost();
-            int port = config.getPort();
-
-            LP.getInstance().start(host, port);
-            FinalityLogger.info("[LP] LLM Playing HTTP server started at http://" + host + ":" + port);
-        } catch (IOException e) {
-            FinalityLogger.error("[LP] Failed to start the server:", e);
+            LP.getInstance().start(config);
+            String address;
+            if ("ws-client".equals(config.getMode())) {
+                address = config.getWsUrl();
+            } else {
+                String host = config.getHost();
+                if (host.indexOf(':') >= 0 && !host.startsWith("[")) {
+                    host = "[" + host + "]";
+                }
+                address = ("ws-server".equals(config.getMode()) ? "ws://" : "http://")
+                        + host + ":" + config.getPort()
+                        + ("ws-server".equals(config.getMode()) ? config.getWsPath() : "");
+            }
+            FinalityLogger.info("[LP] LLM Playing " + config.getMode() + " started at " + address);
+        } catch (IOException | RuntimeException e) {
+            FinalityLogger.error("[LP] Failed to start the transport:", e);
         }
     }
 
     @Inject(methodName = "dispose")
     private static void preDispose(CallbackInfo callbackInfo) {
-        if (LP.getInstance().isRunning()) {
-            LP.getInstance().stop();
-            FinalityLogger.info("[LP] LLM Playing HTTP server stopped.");
-        }
+        LP.getInstance().stop();
+        FinalityLogger.info("[LP] LLM Playing transport stopped.");
     }
 }

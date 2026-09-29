@@ -11,9 +11,9 @@ import team.rainfall.finality.luminosity2.annotations.Mixin;
 public class MixinCFG {
     @Inject(methodName = "dialog_True")
     private static void preDialog_True(CallbackInfo callbackInfo) {
-        if (CFG.dialogType == DialogType.EXIT_GAME && LP.getInstance().isRunning()) {
+        if (CFG.dialogType == DialogType.EXIT_GAME) {
             LP.getInstance().stop();
-            FinalityLogger.info("[LP] LLM Playing HTTP server stopped.");
+            FinalityLogger.info("[LP] LLM Playing transport stopped.");
         }
     }
 }

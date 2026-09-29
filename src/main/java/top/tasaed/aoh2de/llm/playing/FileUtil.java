@@ -10,40 +10,33 @@ import team.rainfall.finality.FinalityLogger;
 public class FileUtil {
     private static final String CONFIG_FILE_NAME = "LP_Config.json";
 
-    public static LPConfig loadConfig() {
+    public static LPConfig loadConfig() throws IOException {
         File configFile = new File(CONFIG_FILE_NAME);
-        if (!configFile.exists()) {
+        if (Files.notExists(configFile.toPath())) {
             FinalityLogger.info("[LP] Config file not found, using default configuration");
-            return new LPConfig();
+            LPConfig config = new LPConfig();
+            config.validate();
+            return config;
         }
 
         try {
             String jsonContent = readString_UTF8(configFile);
-            if (jsonContent == null || jsonContent.trim().isEmpty()) {
-                FinalityLogger.warn("[LP] Config file is empty, using default configuration");
-                return new LPConfig();
+            if (jsonContent.isBlank()) {
+                throw new IOException(CONFIG_FILE_NAME + " must contain a configuration object");
             }
-
             LPConfig config = JSON.parseObject(jsonContent, LPConfig.class);
             if (config == null) {
-                FinalityLogger.warn("[LP] Failed to parse config file, using default configuration");
-                return new LPConfig();
+                throw new IOException(CONFIG_FILE_NAME + " must contain a configuration object");
             }
-
+            config.validate();
             FinalityLogger.info("[LP] Loaded configuration from " + CONFIG_FILE_NAME);
             return config;
-        } catch (Exception e) {
-            FinalityLogger.error("[LP] Failed to load config file, using default configuration", e);
-            return new LPConfig();
+        } catch (RuntimeException e) {
+            throw new IOException("Invalid configuration in " + CONFIG_FILE_NAME, e);
         }
     }
 
-    private static String readString_UTF8(File file) {
-        try {
-            return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            FinalityLogger.error("[LP] Failed while readString_UTF8(File)", e);
-            return null;
-        }
+    private static String readString_UTF8(File file) throws IOException {
+        return Files.readString(file.toPath(), StandardCharsets.UTF_8);
     }
 }
