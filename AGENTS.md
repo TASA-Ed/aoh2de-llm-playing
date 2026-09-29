@@ -15,16 +15,19 @@
 - `src/main/`
   - `resources/plugin.json` Finality Framework 插件元数据。
   - `java/top/tasaed/aoh2de/llm/playing/`
-    - `MixinAoCGame.java` Inject 游戏启动类，用于调用 `LP.java`。
-    - `LP.java` 启动服务，按配置启动一种传输模式。
-    - `LPConfig.java` 配置类
-    - `HttpResponses.java` Http 响应工具。 
+    - `core/` 核心逻辑。
+      - `LP.java` 启动服务，按配置启动一种传输模式。
+      - `LPConfig.java` 配置类。
+    - `mixins/` Mixin 游戏逻辑。
+      - `MixinAoCGame.java` Inject 游戏启动类，用于调用 `LP.java`。
+    - `modes` 传输模式逻辑。
     - `handlers/` 路由/方法处理。
+    - `FileUtil.java` 文件工具。
 - `lib/` Finality Framework Loader（`loader.jar`），游戏（`game.jar`） 依赖。
 - `openapi.yaml` 路由的 OpenAPI 文档。
 
 ## 规范
 
-- 添加或编辑路由后，务必同时编辑 OpenAPI 文档，使用 `./gradlew lintOpenApi` 检测格式。 
-- 编辑代码后运行 `./gradlew spotlessApply` 和 `./gradlew build` 保证代码无误。
+- 添加或编辑路由后，务必同时编辑 OpenAPI 文档，使用 `./gradlew.ps1 lintOpenApi` 检测格式。 
+- 编辑代码后运行 `./gradlew.ps1 spotlessApply` 和 `./gradlew.ps1 build` 保证代码无误。
 - 路由一般以 `/v1` 开头，如：`/v1/message/action_message`。

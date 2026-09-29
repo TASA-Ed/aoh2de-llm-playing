@@ -24,8 +24,13 @@ public final class LP {
         }
         config.validate();
         stop();
+        // Javalin discovers SLF4J providers through the thread context class loader.
+        // Finality loads plugins in a child loader but leaves the game thread's context loader unchanged.
+        Thread thread = Thread.currentThread();
+        ClassLoader previousContextLoader = thread.getContextClassLoader();
         ApiDispatcher newDispatcher = new ApiDispatcher();
         Transport newTransport = null;
+        thread.setContextClassLoader(LP.class.getClassLoader());
         try {
             newTransport = switch (config.getMode()) {
                 case "http-server" -> new HttpServerTransport(config, newDispatcher);
@@ -42,6 +47,8 @@ public final class LP {
                 newTransport.close();
             }
             throw exception;
+        } finally {
+            thread.setContextClassLoader(previousContextLoader);
         }
     }
 
