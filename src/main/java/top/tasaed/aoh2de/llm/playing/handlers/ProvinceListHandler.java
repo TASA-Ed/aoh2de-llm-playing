@@ -4,10 +4,8 @@ import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
 import age.of.civilizations2.jakowski.lukasz.Province;
 import com.alibaba.fastjson2.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class ProvinceListHandler extends GameRequestHandler {

@@ -1,8 +1,8 @@
 package top.tasaed.aoh2de.llm.playing.modes;
 
-import top.tasaed.aoh2de.llm.playing.core.LPConfig;
 import com.alibaba.fastjson2.JSON;
 import io.javalin.Javalin;
+import top.tasaed.aoh2de.llm.playing.core.LPConfig;
 
 public final class HttpServerTransport implements Transport {
     private final LPConfig config;

@@ -1,17 +1,15 @@
 package top.tasaed.aoh2de.llm.playing.handlers;
 
-import top.tasaed.aoh2de.llm.playing.modes.ApiResponse;
 import com.alibaba.fastjson2.JSONObject;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
-
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
-
 import team.rainfall.finality.FinalityLogger;
+import top.tasaed.aoh2de.llm.playing.modes.ApiResponse;
 
 public abstract class GameRequestHandler {
     private final String failureCode;

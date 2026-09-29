@@ -10,8 +10,7 @@ public class LPConfig {
     private String wsPath = "/ws";
     private String wsUrl = "ws://127.0.0.1:8080/ws";
 
-    public LPConfig() {
-    }
+    public LPConfig() {}
 
     public String getMode() {
         return mode;

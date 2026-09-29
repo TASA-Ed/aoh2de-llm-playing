@@ -57,7 +57,7 @@ public final class DiplomacyStatsHandler extends GameRequestHandler {
                 "isAllied",
                 CFG.core.getCiv(playerId).getAlliance() != 0
                         && CFG.core.getCiv(playerId).getAlliance()
-                        == CFG.core.getCiv(civId).getAlliance());
+                                == CFG.core.getCiv(civId).getAlliance());
 
         return HttpResponses.success(result);
     }

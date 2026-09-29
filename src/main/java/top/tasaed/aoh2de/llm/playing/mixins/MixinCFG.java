@@ -1,12 +1,12 @@
 package top.tasaed.aoh2de.llm.playing.mixins;
 
-import top.tasaed.aoh2de.llm.playing.core.LP;
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Z_Other.DialogType;
 import team.rainfall.finality.FinalityLogger;
 import team.rainfall.finality.luminosity2.CallbackInfo;
 import team.rainfall.finality.luminosity2.annotations.Inject;
 import team.rainfall.finality.luminosity2.annotations.Mixin;
+import top.tasaed.aoh2de.llm.playing.core.LP;
 
 @Mixin(mixinClass = "age.of.civilizations2.jakowski.lukasz.CFG")
 public class MixinCFG {

@@ -1,17 +1,14 @@
 package top.tasaed.aoh2de.llm.playing.core;
 
-import top.tasaed.aoh2de.llm.playing.modes.*;
-
 import java.io.IOException;
+import top.tasaed.aoh2de.llm.playing.modes.*;
 
 public final class LP {
     public static final String VERSION = "0.2.0";
     private Transport transport;
     private ApiDispatcher dispatcher;
 
-    private LP() {
-
-    }
+    private LP() {}
 
     private static class Holder {
         private static final LP INSTANCE = new LP();

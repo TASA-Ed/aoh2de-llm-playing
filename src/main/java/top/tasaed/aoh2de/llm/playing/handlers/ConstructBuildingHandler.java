@@ -7,9 +7,7 @@ import age.of.civilizations2.jakowski.lukasz.GameAction;
 import age.of.civilizations2.jakowski.lukasz.MapA.BuildingsManager;
 import age.of.civilizations2.jakowski.lukasz.Province;
 import com.alibaba.fastjson2.JSONObject;
-
 import java.util.Locale;
-
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class ConstructBuildingHandler extends GameRequestHandler {

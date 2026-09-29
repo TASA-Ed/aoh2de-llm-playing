@@ -1,7 +1,5 @@
 package top.tasaed.aoh2de.llm.playing.modes;
 
-import top.tasaed.aoh2de.llm.playing.core.LPConfig;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -16,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import top.tasaed.aoh2de.llm.playing.core.LPConfig;
 
 public final class WebSocketClientTransport implements Transport {
     private final LPConfig config;
