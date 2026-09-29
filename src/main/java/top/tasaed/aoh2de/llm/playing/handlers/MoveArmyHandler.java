@@ -7,9 +7,11 @@ import age.of.civilizations2.jakowski.lukasz.MoveUnitsB.MoveUnits;
 import age.of.civilizations2.jakowski.lukasz.Province;
 import age.of.civilizations2.jakowski.lukasz.RegroupArmy.RegroupArmy;
 import com.alibaba.fastjson2.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
-import top.tasaed.aoh2de.llm.playing.HttpResponses;
+
+import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class MoveArmyHandler extends GameRequestHandler {
     public MoveArmyHandler() {

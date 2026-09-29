@@ -1,13 +1,15 @@
-package top.tasaed.aoh2de.llm.playing;
+package top.tasaed.aoh2de.llm.playing.modes;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONObject;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 final class WebSocketProtocol {
-    private WebSocketProtocol() {}
+    private WebSocketProtocol() {
+    }
 
     static String respond(ApiDispatcher dispatcher, String message) {
         Object parsed;

@@ -7,8 +7,10 @@ import age.of.civilizations2.jakowski.lukasz.GameAction;
 import age.of.civilizations2.jakowski.lukasz.MapA.BuildingsManager;
 import age.of.civilizations2.jakowski.lukasz.Province;
 import com.alibaba.fastjson2.JSONObject;
+
 import java.util.Locale;
-import top.tasaed.aoh2de.llm.playing.HttpResponses;
+
+import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class ConstructBuildingHandler extends GameRequestHandler {
     public ConstructBuildingHandler() {
@@ -199,37 +201,18 @@ public final class ConstructBuildingHandler extends GameRequestHandler {
             return HttpResponses.error("NOT_ENOUGH_GOLD", "The civilization does not have enough gold.");
         }
 
-        switch (type) {
-            case "farm":
-                accepted = BuildingsManager.constructFarm(provinceId, civilizationId);
-                break;
-            case "fort":
-                accepted = BuildingsManager.constructFort(provinceId, civilizationId);
-                break;
-            case "tower":
-                accepted = BuildingsManager.constructTower(provinceId, civilizationId);
-                break;
-            case "port":
-                accepted = BuildingsManager.constructPort(provinceId, civilizationId);
-                break;
-            case "library":
-                accepted = BuildingsManager.constructLibrary(provinceId, civilizationId);
-                break;
-            case "armoury":
-                accepted = BuildingsManager.constructArmoury(provinceId, civilizationId);
-                break;
-            case "workshop":
-                accepted = BuildingsManager.constructWorkshop(provinceId, civilizationId);
-                break;
-            case "market":
-                accepted = BuildingsManager.constructMarket(provinceId, civilizationId);
-                break;
-            case "supply":
-                accepted = BuildingsManager.constructSupply(provinceId, civilizationId);
-                break;
-            default:
-                accepted = false;
-        }
+        accepted = switch (type) {
+            case "farm" -> BuildingsManager.constructFarm(provinceId, civilizationId);
+            case "fort" -> BuildingsManager.constructFort(provinceId, civilizationId);
+            case "tower" -> BuildingsManager.constructTower(provinceId, civilizationId);
+            case "port" -> BuildingsManager.constructPort(provinceId, civilizationId);
+            case "library" -> BuildingsManager.constructLibrary(provinceId, civilizationId);
+            case "armoury" -> BuildingsManager.constructArmoury(provinceId, civilizationId);
+            case "workshop" -> BuildingsManager.constructWorkshop(provinceId, civilizationId);
+            case "market" -> BuildingsManager.constructMarket(provinceId, civilizationId);
+            case "supply" -> BuildingsManager.constructSupply(provinceId, civilizationId);
+            default -> false;
+        };
 
         if (!accepted) {
             return HttpResponses.error("CONSTRUCTION_REJECTED", "The game rejected the construction order.");

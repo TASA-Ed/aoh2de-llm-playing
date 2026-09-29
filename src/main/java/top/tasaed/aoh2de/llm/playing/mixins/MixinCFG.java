@@ -1,5 +1,6 @@
-package top.tasaed.aoh2de.llm.playing;
+package top.tasaed.aoh2de.llm.playing.mixins;
 
+import top.tasaed.aoh2de.llm.playing.core.LP;
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Z_Other.DialogType;
 import team.rainfall.finality.FinalityLogger;

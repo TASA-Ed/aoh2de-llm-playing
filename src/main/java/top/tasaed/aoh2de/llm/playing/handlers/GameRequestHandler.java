@@ -1,14 +1,17 @@
 package top.tasaed.aoh2de.llm.playing.handlers;
 
+import top.tasaed.aoh2de.llm.playing.modes.ApiResponse;
 import com.alibaba.fastjson2.JSONObject;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
-import top.tasaed.aoh2de.llm.playing.ApiResponse;
+
+import team.rainfall.finality.FinalityLogger;
 
 public abstract class GameRequestHandler {
     private final String failureCode;
@@ -41,15 +44,17 @@ public abstract class GameRequestHandler {
             // Cancel queued work, never interrupt or roll back an operation already executing.
             result.cancel(false);
             Thread.currentThread().interrupt();
+            FinalityLogger.error("[LP] The request was interrupted:", exception);
             return ApiResponse.error(500, "REQUEST_INTERRUPTED", "The request was interrupted.");
         } catch (CancellationException exception) {
+            FinalityLogger.error("[LP] The service has stopped:", exception);
             return ApiResponse.error(503, "SERVICE_STOPPED", "The service has stopped.");
         } catch (ExecutionException exception) {
-            exception.getCause().printStackTrace();
+            FinalityLogger.error("[LP] Execution Exception:", exception);
             return ApiResponse.error(500, failureCode, failureMessage);
         } catch (RuntimeException exception) {
             result.cancel(false);
-            exception.printStackTrace();
+            FinalityLogger.error("[LP] Runtime Exception:", exception);
             return ApiResponse.error(500, failureCode, failureMessage);
         } finally {
             pending.remove(result);

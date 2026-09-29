@@ -4,7 +4,7 @@ import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.GameCalendar;
 import age.of.civilizations2.jakowski.lukasz.Menus.Info.Menu_InGame_ProvInfo;
 import com.alibaba.fastjson2.JSONObject;
-import top.tasaed.aoh2de.llm.playing.HttpResponses;
+import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class EndTurnHandler extends GameRequestHandler {
     public EndTurnHandler() {

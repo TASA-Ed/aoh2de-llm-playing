@@ -2,7 +2,7 @@ package top.tasaed.aoh2de.llm.playing.handlers;
 
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import com.alibaba.fastjson2.JSONObject;
-import top.tasaed.aoh2de.llm.playing.HttpResponses;
+import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class DiplomacyStatsHandler extends GameRequestHandler {
     public DiplomacyStatsHandler() {
@@ -57,7 +57,7 @@ public final class DiplomacyStatsHandler extends GameRequestHandler {
                 "isAllied",
                 CFG.core.getCiv(playerId).getAlliance() != 0
                         && CFG.core.getCiv(playerId).getAlliance()
-                                == CFG.core.getCiv(civId).getAlliance());
+                        == CFG.core.getCiv(civId).getAlliance());
 
         return HttpResponses.success(result);
     }

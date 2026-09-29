@@ -1,4 +1,4 @@
-package top.tasaed.aoh2de.llm.playing;
+package top.tasaed.aoh2de.llm.playing.core;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -10,7 +10,8 @@ public class LPConfig {
     private String wsPath = "/ws";
     private String wsUrl = "ws://127.0.0.1:8080/ws";
 
-    public LPConfig() {}
+    public LPConfig() {
+    }
 
     public String getMode() {
         return mode;
@@ -120,5 +121,19 @@ public class LPConfig {
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("wsUrl must be an absolute ws or wss URL", e);
         }
+    }
+
+    public String getAddress() {
+        if ("ws-client".equals(this.mode)) {
+            return this.wsUrl;
+        }
+        String host = this.host;
+        if (host != null && host.indexOf(':') >= 0 && !host.startsWith("[")) {
+            host = "[" + host + "]";
+        }
+        boolean isWsServer = "ws-server".equals(this.mode);
+        String scheme = isWsServer ? "ws://" : "http://";
+        String path = isWsServer && this.wsPath != null ? this.wsPath : "";
+        return scheme + host + ":" + this.port + path;
     }
 }

@@ -1,4 +1,6 @@
-package top.tasaed.aoh2de.llm.playing;
+package top.tasaed.aoh2de.llm.playing.modes;
+
+import top.tasaed.aoh2de.llm.playing.core.LPConfig;
 
 import java.io.IOException;
 import java.net.URI;
@@ -138,12 +140,6 @@ public final class WebSocketClientTransport implements Transport {
         @Override
         public CompletionStage<?> onPing(WebSocket webSocket, ByteBuffer message) {
             // The JDK sends the corresponding pong automatically.
-            webSocket.request(1);
-            return null;
-        }
-
-        @Override
-        public CompletionStage<?> onPong(WebSocket webSocket, ByteBuffer message) {
             webSocket.request(1);
             return null;
         }

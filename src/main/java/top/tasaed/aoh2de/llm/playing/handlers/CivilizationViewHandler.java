@@ -6,7 +6,7 @@ import age.of.civilizations2.jakowski.lukasz.Core.Core;
 import age.of.civilizations2.jakowski.lukasz.MapA.Plagues.Nuke.NukeManager;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import top.tasaed.aoh2de.llm.playing.HttpResponses;
+import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class CivilizationViewHandler extends GameRequestHandler {
     public CivilizationViewHandler() {

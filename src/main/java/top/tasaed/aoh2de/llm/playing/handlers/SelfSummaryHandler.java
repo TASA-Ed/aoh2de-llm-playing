@@ -3,7 +3,7 @@ package top.tasaed.aoh2de.llm.playing.handlers;
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
 import com.alibaba.fastjson2.JSONObject;
-import top.tasaed.aoh2de.llm.playing.HttpResponses;
+import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class SelfSummaryHandler extends GameRequestHandler {
     public SelfSummaryHandler() {

@@ -1,8 +1,10 @@
-package top.tasaed.aoh2de.llm.playing;
+package top.tasaed.aoh2de.llm.playing.modes;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+
 import java.util.Map;
+
 import top.tasaed.aoh2de.llm.playing.handlers.*;
 
 public final class ApiDispatcher implements AutoCloseable {

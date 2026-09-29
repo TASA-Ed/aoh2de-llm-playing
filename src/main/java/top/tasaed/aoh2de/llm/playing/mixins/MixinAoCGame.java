@@ -1,6 +1,11 @@
-package top.tasaed.aoh2de.llm.playing;
+package top.tasaed.aoh2de.llm.playing.mixins;
+
+import top.tasaed.aoh2de.llm.playing.core.LP;
+import top.tasaed.aoh2de.llm.playing.core.LPConfig;
+import top.tasaed.aoh2de.llm.playing.FileUtil;
 
 import java.io.IOException;
+
 import team.rainfall.finality.FinalityLogger;
 import team.rainfall.finality.luminosity2.CallbackInfo;
 import team.rainfall.finality.luminosity2.annotations.Inject;
@@ -14,18 +19,7 @@ public class MixinAoCGame {
             FinalityLogger.info("[LP] LLM Playing " + LP.VERSION + " starting...");
             LPConfig config = FileUtil.loadConfig();
             LP.getInstance().start(config);
-            String address;
-            if ("ws-client".equals(config.getMode())) {
-                address = config.getWsUrl();
-            } else {
-                String host = config.getHost();
-                if (host.indexOf(':') >= 0 && !host.startsWith("[")) {
-                    host = "[" + host + "]";
-                }
-                address = ("ws-server".equals(config.getMode()) ? "ws://" : "http://")
-                        + host + ":" + config.getPort()
-                        + ("ws-server".equals(config.getMode()) ? config.getWsPath() : "");
-            }
+            String address = config.getAddress();
             FinalityLogger.info("[LP] LLM Playing " + config.getMode() + " started at " + address);
         } catch (IOException | RuntimeException e) {
             FinalityLogger.error("[LP] Failed to start the transport:", e);

@@ -5,7 +5,7 @@ import age.of.civilizations2.jakowski.lukasz.Civilization;
 import age.of.civilizations2.jakowski.lukasz.Messages.Message;
 import age.of.civilizations2.jakowski.lukasz.Messages.MessageBox_GameData;
 import com.alibaba.fastjson2.JSONObject;
-import top.tasaed.aoh2de.llm.playing.HttpResponses;
+import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class MessageActionHandler extends GameRequestHandler {
     public MessageActionHandler() {

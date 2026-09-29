@@ -1,9 +1,11 @@
-package top.tasaed.aoh2de.llm.playing;
+package top.tasaed.aoh2de.llm.playing.modes;
 
 import com.alibaba.fastjson2.JSONObject;
 
 public final class HttpResponses {
-    private HttpResponses() {}
+    private HttpResponses() {
+
+    }
 
     public static JSONObject success() {
         JSONObject response = new JSONObject();
