@@ -2,7 +2,8 @@ package top.tasaed.aoh2de.llm.playing.handlers;
 
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Province;
-import com.alibaba.fastjson2.JSONObject;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class ProvinceInformationHandler extends GameRequestHandler {
@@ -11,11 +12,12 @@ public final class ProvinceInformationHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         Integer provinceId;
 
         try {
-            provinceId = request.getInteger("provinceId");
+            provinceId =
+                    request.hasNonNull("provinceId") ? request.get("provinceId").asInt() : null;
         } catch (RuntimeException exception) {
             return HttpResponses.error("INVALID_PARAMETER", "provinceId must be an integer.");
         }
@@ -29,7 +31,7 @@ public final class ProvinceInformationHandler extends GameRequestHandler {
         }
 
         Province province = CFG.core.getProv(provinceId);
-        JSONObject information = new JSONObject();
+        ObjectNode information = JsonNodeFactory.instance.objectNode();
 
         information.put("id", province.getProvID());
         information.put("name", province.getName());
@@ -42,7 +44,7 @@ public final class ProvinceInformationHandler extends GameRequestHandler {
 
         information.put("civilizationId", province.getCivId());
 
-        JSONObject buildings = new JSONObject();
+        ObjectNode buildings = JsonNodeFactory.instance.objectNode();
 
         int portLevel = province.getLvlOfPort();
         if (portLevel > 0) buildings.put("port", portLevel);
@@ -71,7 +73,7 @@ public final class ProvinceInformationHandler extends GameRequestHandler {
         int watchTowerLevel = province.getLvlOfWatchTower();
         if (watchTowerLevel > 0) buildings.put("watchTower", watchTowerLevel);
 
-        information.put("buildings", buildings);
+        information.set("buildings", buildings);
 
         return HttpResponses.success(information);
     }

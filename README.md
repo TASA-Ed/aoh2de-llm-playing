@@ -55,6 +55,7 @@ flowchart TB
 - 游戏启动后按配置启动一种传输模式，供 LLM Agent、脚本或其他工具调用；HTTP / WS 服务端使用 Javalin，WS 客户端使用 `java.net.http.WebSocket`。
 - 提供国家、地区、军队、外交、建筑和回合等事件查询与操作。
 - 三种模式复用相同的路由与业务处理；所有游戏读写都切换到游戏主线程执行，避免直接从网络线程访问游戏状态。
+- 配置读取及 HTTP / WebSocket JSON 编解码使用 Jackson 3；业务处理器使用原生 `ObjectNode` / `ArrayNode`。
 
 ## 需求
 

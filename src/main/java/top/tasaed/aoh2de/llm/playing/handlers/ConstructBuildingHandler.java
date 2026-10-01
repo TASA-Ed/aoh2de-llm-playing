@@ -6,8 +6,9 @@ import age.of.civilizations2.jakowski.lukasz.Civilizations.Construction.Construc
 import age.of.civilizations2.jakowski.lukasz.GameAction;
 import age.of.civilizations2.jakowski.lukasz.MapA.BuildingsManager;
 import age.of.civilizations2.jakowski.lukasz.Province;
-import com.alibaba.fastjson2.JSONObject;
 import java.util.Locale;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class ConstructBuildingHandler extends GameRequestHandler {
@@ -16,13 +17,16 @@ public final class ConstructBuildingHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         Integer provinceId;
         String buildingType;
 
         try {
-            provinceId = request.getInteger("provinceId");
-            buildingType = request.getString("buildingType");
+            provinceId =
+                    request.hasNonNull("provinceId") ? request.get("provinceId").asInt() : null;
+            buildingType = request.hasNonNull("buildingType")
+                    ? request.get("buildingType").asString()
+                    : null;
         } catch (RuntimeException exception) {
             return HttpResponses.error(
                     "INVALID_PARAMETER", "provinceId must be an integer and buildingType must be a string.");
@@ -219,7 +223,7 @@ public final class ConstructBuildingHandler extends GameRequestHandler {
         CFG.core.getPlayer(CFG.PLAYER_TURN_ID).setNoOrders(false);
         CFG.menus.updateInGameTopAll(civilizationId);
 
-        JSONObject result = new JSONObject();
+        ObjectNode result = JsonNodeFactory.instance.objectNode();
         result.put("provinceId", provinceId);
         result.put("buildingType", type);
         result.put("civilizationId", civilizationId);

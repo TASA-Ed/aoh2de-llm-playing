@@ -1,7 +1,8 @@
 package top.tasaed.aoh2de.llm.playing.handlers;
 
 import age.of.civilizations2.jakowski.lukasz.CFG;
-import com.alibaba.fastjson2.JSONObject;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class DiplomacyStatsHandler extends GameRequestHandler {
@@ -10,10 +11,12 @@ public final class DiplomacyStatsHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         Integer civId;
         try {
-            civId = request.getInteger("civilizationId");
+            civId = request.hasNonNull("civilizationId")
+                    ? request.get("civilizationId").asInt()
+                    : null;
         } catch (RuntimeException exception) {
             return HttpResponses.error("INVALID_PARAMETER", "civilizationId must be integers.");
         }
@@ -23,7 +26,7 @@ public final class DiplomacyStatsHandler extends GameRequestHandler {
         }
         int playerId = CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId();
 
-        JSONObject result = new JSONObject();
+        ObjectNode result = JsonNodeFactory.instance.objectNode();
 
         result.put("our_opinion", CFG.core.getCivRelationOfCivB(playerId, civId));
         result.put("their_opinion", CFG.core.getCivRelationOfCivB(civId, playerId));

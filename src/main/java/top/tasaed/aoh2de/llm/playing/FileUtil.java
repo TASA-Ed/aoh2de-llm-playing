@@ -1,15 +1,17 @@
 package top.tasaed.aoh2de.llm.playing;
 
-import com.alibaba.fastjson2.JSON;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import team.rainfall.finality.FinalityLogger;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import top.tasaed.aoh2de.llm.playing.core.LPConfig;
 
 public class FileUtil {
     private static final String CONFIG_FILE_NAME = "LP_Config.json";
+    private static final JsonMapper MAPPER = new JsonMapper();
 
     public static LPConfig loadConfig() throws IOException {
         File configFile = new File(CONFIG_FILE_NAME);
@@ -25,10 +27,11 @@ public class FileUtil {
             if (jsonContent.isBlank()) {
                 throw new IOException(CONFIG_FILE_NAME + " must contain a configuration object");
             }
-            LPConfig config = JSON.parseObject(jsonContent, LPConfig.class);
-            if (config == null) {
+            JsonNode root = MAPPER.readTree(jsonContent);
+            if (!root.isObject()) {
                 throw new IOException(CONFIG_FILE_NAME + " must contain a configuration object");
             }
+            LPConfig config = MAPPER.treeToValue(root, LPConfig.class);
             config.validate();
             FinalityLogger.info("[LP] Loaded configuration from " + CONFIG_FILE_NAME);
             return config;

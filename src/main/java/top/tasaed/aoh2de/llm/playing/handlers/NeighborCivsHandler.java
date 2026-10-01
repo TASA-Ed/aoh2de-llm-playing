@@ -2,9 +2,9 @@ package top.tasaed.aoh2de.llm.playing.handlers;
 
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
-import com.alibaba.fastjson2.JSONObject;
-import java.util.ArrayList;
-import java.util.List;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class NeighborCivsHandler extends GameRequestHandler {
@@ -13,11 +13,13 @@ public final class NeighborCivsHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         Integer civId;
 
         try {
-            civId = request.getInteger("civilizationId");
+            civId = request.hasNonNull("civilizationId")
+                    ? request.get("civilizationId").asInt()
+                    : null;
         } catch (RuntimeException exception) {
             return HttpResponses.error("INVALID_PARAMETER", "civilizationId must be integers.");
         }
@@ -28,7 +30,7 @@ public final class NeighborCivsHandler extends GameRequestHandler {
 
         player.civNeighbors.buildNeighbors(player.getCivId());
 
-        List<JSONObject> neighbors = new ArrayList<>();
+        ArrayNode neighbors = JsonNodeFactory.instance.arrayNode();
         for (int i = 0; i < player.civNeighbors.civsSize; i++) {
             int neighborCivID = player.civNeighbors.civs.get(i).civID;
 
@@ -36,7 +38,7 @@ public final class NeighborCivsHandler extends GameRequestHandler {
                 Civilization neighborCiv = CFG.core.getCiv(neighborCivID);
 
                 if (neighborCiv.getNumOfProvs() > 0) {
-                    JSONObject civInfo = new JSONObject();
+                    ObjectNode civInfo = JsonNodeFactory.instance.objectNode();
                     civInfo.put("id", neighborCivID);
                     civInfo.put("name", neighborCiv.getCivName());
                     civInfo.put("provinceCount", neighborCiv.getNumOfProvs());
@@ -45,8 +47,8 @@ public final class NeighborCivsHandler extends GameRequestHandler {
             }
         }
 
-        JSONObject result = new JSONObject();
-        result.put("neighbors", neighbors);
+        ObjectNode result = JsonNodeFactory.instance.objectNode();
+        result.set("neighbors", neighbors);
         result.put("neighborCount", neighbors.size());
         return HttpResponses.success(result);
     }

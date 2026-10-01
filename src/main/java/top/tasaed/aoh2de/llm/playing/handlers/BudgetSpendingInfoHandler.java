@@ -2,7 +2,8 @@ package top.tasaed.aoh2de.llm.playing.handlers;
 
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
-import com.alibaba.fastjson2.JSONObject;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class BudgetSpendingInfoHandler extends GameRequestHandler {
@@ -11,7 +12,7 @@ public final class BudgetSpendingInfoHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         int civilizationId = CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId();
         Civilization civilization = CFG.core.getCiv(civilizationId);
         int ideologyId = civilization.getIdeology();
@@ -28,31 +29,31 @@ public final class BudgetSpendingInfoHandler extends GameRequestHandler {
         float minInvestments = CFG.ideologiesMgr.getInvestments(ideologyId, civilizationId) * 100.0f;
         float maxTaxes = CFG.ideologiesMgr.getAcceptableTaxation(ideologyId, civilizationId) * 100.0f;
 
-        JSONObject result = new JSONObject();
+        ObjectNode result = JsonNodeFactory.instance.objectNode();
         result.put("budget", civilization.iBudget);
 
         // Current spending
-        JSONObject current = new JSONObject();
+        ObjectNode current = JsonNodeFactory.instance.objectNode();
         current.put("goods", currentGoods);
         current.put("research", currentResearch);
         current.put("investments", currentInvestments);
         current.put("taxes", currentTaxes);
         current.put("military", currentMilitary);
-        result.put("current", current);
+        result.set("current", current);
 
         // Thresholds (negative growth values)
-        JSONObject thresholds = new JSONObject();
+        ObjectNode thresholds = JsonNodeFactory.instance.objectNode();
         thresholds.put("min_goods", minGoods); // Below this value: population negative growth (人口负增长)
         thresholds.put("min_investments", minInvestments); // Below this value: economy negative growth (经济负增长)
         thresholds.put("max_taxes", maxTaxes); // Above this value: happiness negative growth (幸福度负增长)
-        result.put("thresholds", thresholds);
+        result.set("thresholds", thresholds);
 
         // Status indicators
-        JSONObject status = new JSONObject();
+        ObjectNode status = JsonNodeFactory.instance.objectNode();
         status.put("goods_sufficient", currentGoods >= minGoods);
         status.put("investments_sufficient", currentInvestments >= minInvestments);
         status.put("taxes_acceptable", currentTaxes <= maxTaxes);
-        result.put("status", status);
+        result.set("status", status);
 
         return HttpResponses.success(result);
     }

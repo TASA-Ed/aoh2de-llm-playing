@@ -3,9 +3,9 @@ package top.tasaed.aoh2de.llm.playing.handlers;
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
 import age.of.civilizations2.jakowski.lukasz.Province;
-import com.alibaba.fastjson2.JSONObject;
-import java.util.ArrayList;
-import java.util.List;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class ProvinceListHandler extends GameRequestHandler {
@@ -14,11 +14,13 @@ public final class ProvinceListHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         Integer civId;
 
         try {
-            civId = request.getInteger("civilizationId");
+            civId = request.hasNonNull("civilizationId")
+                    ? request.get("civilizationId").asInt()
+                    : null;
         } catch (RuntimeException exception) {
             return HttpResponses.error("INVALID_PARAMETER", "civilizationId must be integers.");
         }
@@ -26,17 +28,17 @@ public final class ProvinceListHandler extends GameRequestHandler {
         if (civId == null) civId = CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId();
 
         Civilization civ = CFG.core.getCiv(civId);
-        List<JSONObject> provinces = new ArrayList<>();
+        ArrayNode provinces = JsonNodeFactory.instance.arrayNode();
         for (int i = 0; i < civ.getNumOfProvs(); i++) {
             Province province = CFG.core.getProv(civ.getProvID(i));
-            JSONObject information = new JSONObject();
+            ObjectNode information = JsonNodeFactory.instance.objectNode();
             information.put("name", province.getName());
             information.put("id", province.getProvID());
             provinces.add(information);
         }
 
-        JSONObject result = new JSONObject();
-        result.put("provinces", provinces);
+        ObjectNode result = JsonNodeFactory.instance.objectNode();
+        result.set("provinces", provinces);
         return HttpResponses.success(result);
     }
 }

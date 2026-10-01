@@ -5,9 +5,9 @@ import age.of.civilizations2.jakowski.lukasz.Civilization;
 import age.of.civilizations2.jakowski.lukasz.Messages.Message;
 import age.of.civilizations2.jakowski.lukasz.Messages.MessageBox_GameData;
 import age.of.civilizations2.jakowski.lukasz.Messages.MessageType;
-import com.alibaba.fastjson2.JSONObject;
-import java.util.ArrayList;
-import java.util.List;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class MessageListHandler extends GameRequestHandler {
@@ -16,11 +16,11 @@ public final class MessageListHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         Civilization player =
                 CFG.core.getCiv(CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId());
 
-        List<JSONObject> messages = new ArrayList<>();
+        ArrayNode messages = JsonNodeFactory.instance.arrayNode();
         MessageBox_GameData messageBox = player.getCivDiploGD().messageBox;
 
         for (int i = 0; i < messageBox.getMessagesSize(); i++) {
@@ -28,7 +28,7 @@ public final class MessageListHandler extends GameRequestHandler {
 
             MessageType type = message.messageType;
 
-            JSONObject information = new JSONObject();
+            ObjectNode information = JsonNodeFactory.instance.objectNode();
 
             information.put("messageId", i);
             information.put("fromCivId", message.fromCivID);
@@ -43,8 +43,8 @@ public final class MessageListHandler extends GameRequestHandler {
             messages.add(information);
         }
 
-        JSONObject result = new JSONObject();
-        result.put("messages", messages);
+        ObjectNode result = JsonNodeFactory.instance.objectNode();
+        result.set("messages", messages);
         return HttpResponses.success(result);
     }
 }

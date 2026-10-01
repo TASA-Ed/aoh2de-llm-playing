@@ -1,10 +1,13 @@
 package top.tasaed.aoh2de.llm.playing.modes;
 
-import com.alibaba.fastjson2.JSON;
 import io.javalin.Javalin;
+import tools.jackson.databind.cfg.JsonNodeFeature;
+import tools.jackson.databind.json.JsonMapper;
 import top.tasaed.aoh2de.llm.playing.core.LPConfig;
 
 public final class HttpServerTransport implements Transport {
+    private static final JsonMapper MAPPER =
+            JsonMapper.builder().disable(JsonNodeFeature.WRITE_NULL_PROPERTIES).build();
     private final LPConfig config;
     private final Javalin server;
     private volatile boolean running;
@@ -23,7 +26,8 @@ public final class HttpServerTransport implements Transport {
                 if (response.body() instanceof String text) {
                     ctx.contentType("text/plain; charset=utf-8").result(text);
                 } else {
-                    ctx.contentType("application/json; charset=utf-8").result(JSON.toJSONBytes(response.body()));
+                    ctx.contentType("application/json; charset=utf-8")
+                            .result(MAPPER.writeValueAsString(response.body()));
                 }
                 ctx.skipRemainingHandlers();
             });

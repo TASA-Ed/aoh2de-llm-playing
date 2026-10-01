@@ -4,7 +4,8 @@ import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
 import age.of.civilizations2.jakowski.lukasz.GameAction;
 import age.of.civilizations2.jakowski.lukasz.GameValues.GameValues;
-import com.alibaba.fastjson2.JSONObject;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class BudgetSpendingHandler extends GameRequestHandler {
@@ -13,16 +14,18 @@ public final class BudgetSpendingHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         Float goods;
         Float research;
         Float investments;
         Float taxes;
         try {
-            goods = request.getFloat("goods");
-            research = request.getFloat("research");
-            investments = request.getFloat("investments");
-            taxes = request.getFloat("taxes");
+            goods = request.hasNonNull("goods") ? request.get("goods").asFloat() : null;
+            research = request.hasNonNull("research") ? request.get("research").asFloat() : null;
+            investments = request.hasNonNull("investments")
+                    ? request.get("investments").asFloat()
+                    : null;
+            taxes = request.hasNonNull("taxes") ? request.get("taxes").asFloat() : null;
         } catch (RuntimeException exception) {
             return HttpResponses.error(
                     "INVALID_PARAMETER", "goods, research, investments and taxes must be numbers from 0 to 100.");
@@ -60,7 +63,7 @@ public final class BudgetSpendingHandler extends GameRequestHandler {
         CFG.gameUpdate.updateSpendingOfCivID(civilizationId, civilization.iBudget);
         CFG.menus.updateInGameTopAll(civilizationId);
 
-        JSONObject result = new JSONObject();
+        ObjectNode result = JsonNodeFactory.instance.objectNode();
         result.put("goods", civilization.getSpendingGoodsB() * 100.0f);
         result.put("research", civilization.getSpendingResearchB() * 100.0f);
         result.put("investments", civilization.getSpendingInvestmentsB() * 100.0f);

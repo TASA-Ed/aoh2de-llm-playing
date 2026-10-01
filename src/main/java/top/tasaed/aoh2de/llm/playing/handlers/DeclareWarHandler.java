@@ -1,7 +1,7 @@
 package top.tasaed.aoh2de.llm.playing.handlers;
 
 import age.of.civilizations2.jakowski.lukasz.CFG;
-import com.alibaba.fastjson2.JSONObject;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class DeclareWarHandler extends GameRequestHandler {
@@ -10,10 +10,12 @@ public final class DeclareWarHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         Integer civId;
         try {
-            civId = request.getInteger("civilizationId");
+            civId = request.hasNonNull("civilizationId")
+                    ? request.get("civilizationId").asInt()
+                    : null;
         } catch (RuntimeException exception) {
             return HttpResponses.error("INVALID_PARAMETER", "civilizationId must be integers.");
         }

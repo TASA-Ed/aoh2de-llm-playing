@@ -1,30 +1,31 @@
 package top.tasaed.aoh2de.llm.playing.modes;
 
-import com.alibaba.fastjson2.JSONObject;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 public final class HttpResponses {
     private HttpResponses() {}
 
-    public static JSONObject success() {
-        JSONObject response = new JSONObject();
+    public static ObjectNode success() {
+        ObjectNode response = JsonNodeFactory.instance.objectNode();
         response.put("success", true);
         return response;
     }
 
-    public static JSONObject success(JSONObject result) {
-        JSONObject response = success();
-        response.put("result", result);
+    public static ObjectNode success(ObjectNode result) {
+        ObjectNode response = success();
+        response.set("result", result);
         return response;
     }
 
-    public static JSONObject error(String code, String message) {
-        JSONObject response = new JSONObject();
+    public static ObjectNode error(String code, String message) {
+        ObjectNode response = JsonNodeFactory.instance.objectNode();
         response.put("success", false);
 
-        JSONObject error = new JSONObject();
+        ObjectNode error = JsonNodeFactory.instance.objectNode();
         error.put("code", code);
         error.put("message", message);
-        response.put("error", error);
+        response.set("error", error);
         return response;
     }
 }

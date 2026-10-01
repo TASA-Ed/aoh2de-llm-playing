@@ -5,7 +5,8 @@ import age.of.civilizations2.jakowski.lukasz.Civilization;
 import age.of.civilizations2.jakowski.lukasz.GameAction;
 import age.of.civilizations2.jakowski.lukasz.MoveUnitsB.MoveUnits;
 import age.of.civilizations2.jakowski.lukasz.RegroupArmy.RegroupArmy;
-import com.alibaba.fastjson2.JSONObject;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class CancelArmyMoveHandler extends GameRequestHandler {
@@ -14,12 +15,16 @@ public final class CancelArmyMoveHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         Integer fromProvinceId;
         Integer toProvinceId;
         try {
-            fromProvinceId = request.getInteger("fromProvinceId");
-            toProvinceId = request.getInteger("toProvinceId");
+            fromProvinceId = request.hasNonNull("fromProvinceId")
+                    ? request.get("fromProvinceId").asInt()
+                    : null;
+            toProvinceId = request.hasNonNull("toProvinceId")
+                    ? request.get("toProvinceId").asInt()
+                    : null;
         } catch (RuntimeException exception) {
             return HttpResponses.error("INVALID_PARAMETER", "Province IDs must be integers.");
         }
@@ -52,7 +57,7 @@ public final class CancelArmyMoveHandler extends GameRequestHandler {
 
         CFG.menus.updateInGameTopAll(civilizationId);
 
-        JSONObject result = new JSONObject();
+        ObjectNode result = JsonNodeFactory.instance.objectNode();
         result.put("civilizationId", civilizationId);
         result.put("fromProvinceId", fromProvinceId);
         result.put("toProvinceId", toProvinceId);

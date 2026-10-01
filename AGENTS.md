@@ -29,15 +29,15 @@
 
 ## 规范
 
-- 添加或编辑路由后，务必同时编辑 OpenAPI 文档，使用 `./gradlew.ps1 lintOpenApi` 检测格式。 
-- 编辑代码后运行 `./gradlew.ps1 spotlessApply` 和 `./gradlew.ps1 build` 保证代码无误。
+- 添加或编辑路由后，务必同时编辑 OpenAPI 文档，使用 `./gradlew.bat lintOpenApi` 检测格式。 
+- 编辑代码后运行 `./gradlew.bat spotlessApply` 和 `./gradlew.bat build` 保证代码无误。
 - 路由一般以 `/v1` 开头，如：`/v1/message/action_message`。
 
 ## 与游戏联调
 
 因为游戏运行需要 Gdx.files 和对应资源才可运行，所以与游戏联合调试需要在 Steam 游戏目录下进行，不要引用 `libs/` 下的 jar 进行。
 
-因为需要打包依赖，所以首先运行 `./gradlew.ps1 clean release`，生成的 all jar 包需要放入 `[游戏目录]/mods/[模组名称]/plugins/` 中。
+因为需要打包依赖，所以首先运行 `./gradlew.bat clean release`，生成的 all jar 包需要放入 `[游戏目录]/mods/[模组名称]/plugins/` 中。
 
 然后运行游戏目录下的 Finality Loader（命名一般类似 `loader-1.x.x.jar`），然后等待游戏加载，可能需要较长时间。
 

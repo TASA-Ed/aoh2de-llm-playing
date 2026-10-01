@@ -1,13 +1,15 @@
 package top.tasaed.aoh2de.llm.playing.modes;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
 import java.util.Map;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.handlers.*;
 
 public final class ApiDispatcher implements AutoCloseable {
     public static final int MAX_REQUEST_BODY_SIZE = 64 * 1024;
     private static final String HEALTH_PATH = "/v1/health";
+    private static final JsonMapper MAPPER = new JsonMapper();
     private final Map<String, GameRequestHandler> routes = Map.ofEntries(
             Map.entry("/v1/army/move", new MoveArmyHandler()),
             Map.entry("/v1/army/cancel_move", new CancelArmyMoveHandler()),
@@ -40,21 +42,22 @@ public final class ApiDispatcher implements AutoCloseable {
         if (body.length > MAX_REQUEST_BODY_SIZE) {
             return ApiResponse.error(413, "REQUEST_BODY_TOO_LARGE", "The request body must not exceed 64 KiB.");
         }
-        final JSONObject request;
+        final ObjectNode request;
         try {
-            request = body.length == 0 ? new JSONObject() : JSON.parseObject(body);
-            if (request == null) {
+            JsonNode parsed = body.length == 0 ? MAPPER.createObjectNode() : MAPPER.readTree(body);
+            if (!(parsed instanceof ObjectNode object)) {
                 throw new IllegalArgumentException("Expected a JSON object");
             }
+            request = object;
         } catch (RuntimeException exception) {
             return ApiResponse.error(400, "INVALID_JSON", "The request body must be a valid JSON object.");
         }
         return routes.get(path).handle(request);
     }
 
-    public ApiResponse dispatch(String method, String path, JSONObject body) {
+    public ApiResponse dispatch(String method, String path, ObjectNode body) {
         ApiResponse early = checkRoute(method, path);
-        return early != null ? early : routes.get(path).handle(body == null ? new JSONObject() : body);
+        return early != null ? early : routes.get(path).handle(body == null ? MAPPER.createObjectNode() : body);
     }
 
     private ApiResponse checkRoute(String method, String path) {

@@ -3,9 +3,9 @@ package top.tasaed.aoh2de.llm.playing.handlers;
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.MoveUnitsB.MoveUnits;
 import age.of.civilizations2.jakowski.lukasz.MoveUnitsB.MoveUnits_TurnData;
-import com.alibaba.fastjson2.JSONObject;
-import java.util.ArrayList;
-import java.util.List;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class CurrentEventHandler extends GameRequestHandler {
@@ -14,20 +14,20 @@ public final class CurrentEventHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         MoveUnits_TurnData currentMove = CFG.gameAction.getCurrentMoveunits();
 
         if (currentMove == null) {
             return HttpResponses.error("NO_EVENT", "No current event");
         }
 
-        List<JSONObject> armies = new ArrayList<>();
+        ArrayNode armies = JsonNodeFactory.instance.arrayNode();
         int totalTroops = 0;
         int playerId = CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId();
 
         for (int i = 0; i < currentMove.getMoveUnitsSize(); i++) {
             MoveUnits army = currentMove.getMoveUnits(i);
-            JSONObject armyInfo = new JSONObject();
+            ObjectNode armyInfo = JsonNodeFactory.instance.objectNode();
 
             int attackerCivId = currentMove.getCivID(i);
 
@@ -41,8 +41,8 @@ public final class CurrentEventHandler extends GameRequestHandler {
             armies.add(armyInfo);
         }
 
-        JSONObject result = new JSONObject();
-        result.put("armies", armies);
+        ObjectNode result = JsonNodeFactory.instance.objectNode();
+        result.set("armies", armies);
         result.put("totalAttackingTroops", totalTroops);
         result.put(
                 "defenderCivID",

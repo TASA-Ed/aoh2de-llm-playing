@@ -4,7 +4,7 @@ import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
 import age.of.civilizations2.jakowski.lukasz.Messages.Message;
 import age.of.civilizations2.jakowski.lukasz.Messages.MessageBox_GameData;
-import com.alibaba.fastjson2.JSONObject;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class MessageActionHandler extends GameRequestHandler {
@@ -13,12 +13,13 @@ public final class MessageActionHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         Integer messageId;
         String type;
         try {
-            messageId = request.getInteger("messageId");
-            type = request.getString("type");
+            messageId =
+                    request.hasNonNull("messageId") ? request.get("messageId").asInt() : null;
+            type = request.hasNonNull("type") ? request.get("type").asString() : null;
         } catch (RuntimeException exception) {
             return HttpResponses.error("INVALID_PARAMETER", "messageId must be integers, and type must be a string.");
         }

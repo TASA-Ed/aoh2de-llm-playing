@@ -2,7 +2,8 @@ package top.tasaed.aoh2de.llm.playing.handlers;
 
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
-import com.alibaba.fastjson2.JSONObject;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class NationInformationHandler extends GameRequestHandler {
@@ -11,11 +12,13 @@ public final class NationInformationHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         Integer civId;
 
         try {
-            civId = request.getInteger("civilizationId");
+            civId = request.hasNonNull("civilizationId")
+                    ? request.get("civilizationId").asInt()
+                    : null;
         } catch (RuntimeException exception) {
             return HttpResponses.error("INVALID_PARAMETER", "civilizationId must be integers.");
         }
@@ -23,7 +26,7 @@ public final class NationInformationHandler extends GameRequestHandler {
         if (civId == null) civId = CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId();
 
         Civilization civ = CFG.core.getCiv(civId);
-        JSONObject information = new JSONObject();
+        ObjectNode information = JsonNodeFactory.instance.objectNode();
         information.put("civilizationId", civ.getCivId());
         information.put("name", civ.getCivName());
         information.put("tagId", civ.getCivTag());

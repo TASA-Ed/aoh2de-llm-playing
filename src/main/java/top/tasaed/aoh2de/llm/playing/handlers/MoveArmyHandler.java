@@ -6,9 +6,10 @@ import age.of.civilizations2.jakowski.lukasz.GameAction;
 import age.of.civilizations2.jakowski.lukasz.MoveUnitsB.MoveUnits;
 import age.of.civilizations2.jakowski.lukasz.Province;
 import age.of.civilizations2.jakowski.lukasz.RegroupArmy.RegroupArmy;
-import com.alibaba.fastjson2.JSONObject;
-import java.util.ArrayList;
-import java.util.List;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class MoveArmyHandler extends GameRequestHandler {
@@ -17,18 +18,27 @@ public final class MoveArmyHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         Integer fromProvinceId;
         Integer toProvinceId;
         Integer units;
         try {
-            fromProvinceId = request.getInteger("fromProvinceId");
-            toProvinceId = request.getInteger("toProvinceId");
-            units = request.getInteger("units");
+            fromProvinceId = request.hasNonNull("fromProvinceId")
+                    ? request.get("fromProvinceId").asInt()
+                    : null;
+            toProvinceId = request.hasNonNull("toProvinceId")
+                    ? request.get("toProvinceId").asInt()
+                    : null;
+            units = request.hasNonNull("units") ? request.get("units").asInt() : null;
         } catch (RuntimeException exception) {
             return HttpResponses.error("INVALID_PARAMETER", "Province IDs and units must be integers.");
         }
-        boolean moveTo = request.getBooleanValue("moveTo");
+        JsonNode moveToValue = request.path("moveTo");
+        boolean moveTo = moveToValue.isNumber()
+                ? moveToValue.numberValue().intValue() == 1
+                : moveToValue.isString()
+                        ? "true".equalsIgnoreCase(moveToValue.stringValue()) || "1".equals(moveToValue.stringValue())
+                        : moveToValue.asBoolean();
 
         if (fromProvinceId == null || toProvinceId == null || units == null) {
             return HttpResponses.error("MISSING_PARAMETER", "fromProvinceId, toProvinceId and units are required.");
@@ -85,7 +95,7 @@ public final class MoveArmyHandler extends GameRequestHandler {
             return HttpResponses.error("MOVE_REJECTED", "The game rejected the army movement order.");
         }
 
-        List<Integer> remainingRoute = new ArrayList<>();
+        ArrayNode remainingRoute = JsonNodeFactory.instance.arrayNode();
         if (moveTo && route.getRouteSize() > 1) {
             route.setFromProvinceID(firstHopProvinceId);
             route.removeRoute(0);
@@ -99,7 +109,7 @@ public final class MoveArmyHandler extends GameRequestHandler {
         CFG.core.getPlayer(CFG.PLAYER_TURN_ID).setNoOrders(false);
         CFG.menus.updateInGameTopAll(civilizationId);
 
-        JSONObject result = new JSONObject();
+        ObjectNode result = JsonNodeFactory.instance.objectNode();
         result.put("civilizationId", civilizationId);
         result.put("fromProvinceId", fromProvinceId);
         result.put("toProvinceId", toProvinceId);
@@ -108,7 +118,7 @@ public final class MoveArmyHandler extends GameRequestHandler {
         result.put("moveTo", moveTo);
         result.put("movementCost", adjustsExistingOrder ? 0 : movementCost);
         result.put("remainingMovementPoints", civilization.getMovemPoints());
-        result.put("remainingRoute", remainingRoute);
+        result.set("remainingRoute", remainingRoute);
         return HttpResponses.success(result);
     }
 

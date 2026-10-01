@@ -1,43 +1,51 @@
 package top.tasaed.aoh2de.llm.playing.modes;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONException;
-import com.alibaba.fastjson2.JSONObject;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.cfg.JsonNodeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 final class WebSocketProtocol {
+    private static final JsonMapper MAPPER =
+            JsonMapper.builder().disable(JsonNodeFeature.WRITE_NULL_PROPERTIES).build();
+
     private WebSocketProtocol() {}
 
     static String respond(ApiDispatcher dispatcher, String message) {
-        Object parsed;
+        JsonNode parsed;
         try {
-            parsed = JSON.parse(message);
-        } catch (JSONException exception) {
+            parsed = MAPPER.readTree(message);
+        } catch (JacksonException exception) {
             return error(null, "INVALID_JSON", "The WebSocket message must be valid JSON.");
         }
-        if (!(parsed instanceof JSONObject request)) {
+        if (!(parsed instanceof ObjectNode request)) {
             return error(null, "INVALID_REQUEST", "The WebSocket message must be a JSON object.");
         }
-        Object rawId = request.get("id");
-        if (!(rawId instanceof String id) || id.isEmpty()) {
+        JsonNode rawId = request.path("id");
+        if (!rawId.isString() || rawId.stringValue().isEmpty()) {
             return error(null, "INVALID_REQUEST", "id must be a nonempty string.");
         }
-        if (!(request.get("method") instanceof String method)) {
+        String id = rawId.stringValue();
+        JsonNode method = request.path("method");
+        if (!method.isString()) {
             return error(id, "INVALID_REQUEST", "method must be a string.");
         }
-        if (!(request.get("path") instanceof String path)) {
+        JsonNode path = request.path("path");
+        if (!path.isString()) {
             return error(id, "INVALID_REQUEST", "path must be a string.");
         }
-        JSONObject body;
-        if (!request.containsKey("body")) {
-            body = new JSONObject();
-        } else if (request.get("body") instanceof JSONObject object) {
+        ObjectNode body;
+        if (!request.has("body")) {
+            body = MAPPER.createObjectNode();
+        } else if (request.get("body") instanceof ObjectNode object) {
             body = object;
         } else {
             return error(id, "INVALID_REQUEST", "body must be a JSON object when supplied.");
         }
-        return envelope(id, dispatcher.dispatch(method, path, body));
+        return envelope(id, dispatcher.dispatch(method.stringValue(), path.stringValue(), body));
     }
 
     private static String error(String id, String code, String message) {
@@ -46,8 +54,8 @@ final class WebSocketProtocol {
 
     private static String envelope(String id, ApiResponse response) {
         // Serialize the fields explicitly so an unavailable id is present as JSON null.
-        return "{\"id\":" + JSON.toJSONString(id) + ",\"status\":" + response.status() + ",\"body\":"
-                + JSON.toJSONString(response.body()) + "}";
+        return "{\"id\":" + MAPPER.writeValueAsString(id) + ",\"status\":" + response.status() + ",\"body\":"
+                + MAPPER.writeValueAsString(response.body()) + "}";
     }
 
     static ExecutorService newWorker(String name) {

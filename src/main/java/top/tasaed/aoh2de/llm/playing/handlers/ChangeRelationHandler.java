@@ -4,7 +4,7 @@ import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
 import age.of.civilizations2.jakowski.lukasz.GameManager;
 import age.of.civilizations2.jakowski.lukasz.GameValues.GameValues;
-import com.alibaba.fastjson2.JSONObject;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class ChangeRelationHandler extends GameRequestHandler {
@@ -14,14 +14,16 @@ public final class ChangeRelationHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         Integer civId;
         Integer turns;
         String type;
         try {
-            civId = request.getInteger("civilizationId");
-            turns = request.getInteger("turns");
-            type = request.getString("type");
+            civId = request.hasNonNull("civilizationId")
+                    ? request.get("civilizationId").asInt()
+                    : null;
+            turns = request.hasNonNull("turns") ? request.get("turns").asInt() : null;
+            type = request.hasNonNull("type") ? request.get("type").asString() : null;
         } catch (RuntimeException exception) {
             return HttpResponses.error(
                     "INVALID_PARAMETER", "civilizationId and turns must be integers, and type must be a string.");

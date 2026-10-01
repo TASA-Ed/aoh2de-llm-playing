@@ -4,8 +4,9 @@ import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
 import age.of.civilizations2.jakowski.lukasz.Core.Core;
 import age.of.civilizations2.jakowski.lukasz.MapA.Plagues.Nuke.NukeManager;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
 public final class CivilizationViewHandler extends GameRequestHandler {
@@ -14,14 +15,14 @@ public final class CivilizationViewHandler extends GameRequestHandler {
     }
 
     @Override
-    protected JSONObject handleOnGameThread(JSONObject request) {
+    protected ObjectNode handleOnGameThread(ObjectNode request) {
         int civId = CFG.core.getPlayer(CFG.PLAYER_TURN_ID).getCivId();
 
         Civilization civ = CFG.core.getCiv(civId);
-        JSONObject viewData = new JSONObject();
+        ObjectNode viewData = JsonNodeFactory.instance.objectNode();
 
         // 基本信息
-        JSONObject basicInfo = new JSONObject();
+        ObjectNode basicInfo = JsonNodeFactory.instance.objectNode();
         basicInfo.put("civilizationId", civ.getCivId());
         basicInfo.put("name", civ.getCivName());
         basicInfo.put("capitalProvinceId", civ.getCapitalProvID());
@@ -44,25 +45,25 @@ public final class CivilizationViewHandler extends GameRequestHandler {
             basicInfo.put(
                     "allianceName", CFG.core.getAlliance(civ.getAlliance()).getAllianceName());
 
-            JSONArray allianceMembers = new JSONArray();
+            ArrayNode allianceMembers = JsonNodeFactory.instance.arrayNode();
             for (int i = 0; i < CFG.core.getAlliance(civ.getAlliance()).getCivilizationsSize(); i++) {
                 int memberCivId = CFG.core.getAlliance(civ.getAlliance()).getCivilization(i);
-                JSONObject member = new JSONObject();
+                ObjectNode member = JsonNodeFactory.instance.objectNode();
                 member.put("civilizationId", memberCivId);
                 member.put("name", CFG.core.getCiv(memberCivId).getCivName());
                 allianceMembers.add(member);
             }
-            basicInfo.put("allianceMembers", allianceMembers);
+            basicInfo.set("allianceMembers", allianceMembers);
         }
 
-        viewData.put("basicInfo", basicInfo);
+        viewData.set("basicInfo", basicInfo);
 
         // 领土信息
-        JSONObject territoryInfo = new JSONObject();
+        ObjectNode territoryInfo = JsonNodeFactory.instance.objectNode();
         territoryInfo.put("numberOfProvinces", civ.getNumOfProvs());
 
         // 按地形类型统计省份
-        JSONArray provincesByTerrain = new JSONArray();
+        ArrayNode provincesByTerrain = JsonNodeFactory.instance.arrayNode();
         java.util.Map<Integer, Integer> terrainCount = new java.util.HashMap<>();
 
         for (int i = 0; i < civ.getNumOfProvs(); i++) {
@@ -72,23 +73,23 @@ public final class CivilizationViewHandler extends GameRequestHandler {
         }
 
         for (java.util.Map.Entry<Integer, Integer> entry : terrainCount.entrySet()) {
-            JSONObject terrain = new JSONObject();
+            ObjectNode terrain = JsonNodeFactory.instance.objectNode();
             terrain.put("terrainTypeId", entry.getKey());
             terrain.put("terrainName", CFG.terrainTypesManager.getName(entry.getKey()));
             terrain.put("provinceCount", entry.getValue());
             provincesByTerrain.add(terrain);
         }
 
-        territoryInfo.put("provincesByTerrain", provincesByTerrain);
-        viewData.put("territoryInfo", territoryInfo);
+        territoryInfo.set("provincesByTerrain", provincesByTerrain);
+        viewData.set("territoryInfo", territoryInfo);
 
         // 人口信息
-        JSONObject populationInfo = new JSONObject();
+        ObjectNode populationInfo = JsonNodeFactory.instance.objectNode();
         populationInfo.put("totalPopulation", civ.countPop());
-        viewData.put("populationInfo", populationInfo);
+        viewData.set("populationInfo", populationInfo);
 
         // 军事信息
-        JSONObject militaryInfo = new JSONObject();
+        ObjectNode militaryInfo = JsonNodeFactory.instance.objectNode();
         militaryInfo.put("numberOfUnits", civ.getNumberOfUnits());
         militaryInfo.put("militaryUpkeep", (int) CFG.gameUpdate.getMilitaryUpkeep_Total(civId));
 
@@ -101,10 +102,10 @@ public final class CivilizationViewHandler extends GameRequestHandler {
         }
 
         militaryInfo.put("warWeariness", ((int) (civ.getWarWeariness() * 10000.0f)) / 100.0f);
-        viewData.put("militaryInfo", militaryInfo);
+        viewData.set("militaryInfo", militaryInfo);
 
         // 经济信息
-        JSONObject economyInfo = new JSONObject();
+        ObjectNode economyInfo = JsonNodeFactory.instance.objectNode();
         long totalEconomy = civ.countEco();
         economyInfo.put("totalEconomy", totalEconomy);
         economyInfo.put("startingEconomy", civ.civGD.startingEconomy);
@@ -120,15 +121,15 @@ public final class CivilizationViewHandler extends GameRequestHandler {
             economyInfo.put("unemploymentPercentage", 0.0f);
         }
 
-        viewData.put("economyInfo", economyInfo);
+        viewData.set("economyInfo", economyInfo);
 
         // 科技信息
-        JSONObject technologyInfo = new JSONObject();
+        ObjectNode technologyInfo = JsonNodeFactory.instance.objectNode();
         technologyInfo.put("technologyLevel", ((int) (civ.getTechLevel() * 100.0f)) / 100.0f);
-        viewData.put("technologyInfo", technologyInfo);
+        viewData.set("technologyInfo", technologyInfo);
 
         // 发展信息
-        JSONObject developmentInfo = new JSONObject();
+        ObjectNode developmentInfo = JsonNodeFactory.instance.objectNode();
         developmentInfo.put("averageDevelopment", CFG.core.countAverageDevelopmentLevel(civId));
         developmentInfo.put("averageDevelopmentFloat", CFG.core.countAverageDevelopmentLevel_Float(civId));
 
@@ -139,64 +140,64 @@ public final class CivilizationViewHandler extends GameRequestHandler {
             developmentInfo.put("developmentPercentageOfTech", 0);
         }
 
-        viewData.put("developmentInfo", developmentInfo);
+        viewData.set("developmentInfo", developmentInfo);
 
         // 通货膨胀信息
-        JSONObject inflationInfo = new JSONObject();
+        ObjectNode inflationInfo = JsonNodeFactory.instance.objectNode();
         inflationInfo.put("inflationCost", (int) CFG.gameUpdate.getInflation(civId));
         inflationInfo.put("inflationPercentage", ((int) (CFG.gameUpdate.getInflationPerc(civId) * 10000.0f)) / 100.0f);
-        viewData.put("inflationInfo", inflationInfo);
+        viewData.set("inflationInfo", inflationInfo);
 
         // 核武器信息
-        JSONObject nukesInfo = new JSONObject();
+        ObjectNode nukesInfo = JsonNodeFactory.instance.objectNode();
         nukesInfo.put("numberOfNukes", civ.civGD.iNukes);
         nukesInfo.put("nukesLimit", NukeManager.getAtomicBombsLimit(civId));
-        viewData.put("nukesInfo", nukesInfo);
+        viewData.set("nukesInfo", nukesInfo);
 
         // 幸福度信息
-        JSONObject happinessInfo = new JSONObject();
+        ObjectNode happinessInfo = JsonNodeFactory.instance.objectNode();
         happinessInfo.put("happiness", civ.getHappiness());
-        viewData.put("happinessInfo", happinessInfo);
+        viewData.set("happinessInfo", happinessInfo);
 
         // 稳定度信息
-        JSONObject stabilityInfo = new JSONObject();
+        ObjectNode stabilityInfo = JsonNodeFactory.instance.objectNode();
         stabilityInfo.put("stability", (int) (civ.getStabilityCiv() * 100.0f));
-        viewData.put("stabilityInfo", stabilityInfo);
+        viewData.set("stabilityInfo", stabilityInfo);
 
         // 排名信息
-        JSONObject rankInfo = new JSONObject();
+        ObjectNode rankInfo = JsonNodeFactory.instance.objectNode();
         rankInfo.put("rankPosition", civ.getRankPos());
         rankInfo.put("rankScore", civ.getRankScore());
-        viewData.put("rankInfo", rankInfo);
+        viewData.set("rankInfo", rankInfo);
 
         // 制裁信息
-        JSONObject sanctionsInfo = new JSONObject();
+        ObjectNode sanctionsInfo = JsonNodeFactory.instance.objectNode();
         sanctionsInfo.put("sanctionsImpact", (int) (civ.sanctionsImpact * 10000.0f) / 100.0f);
-        viewData.put("sanctionsInfo", sanctionsInfo);
+        viewData.set("sanctionsInfo", sanctionsInfo);
 
         // 政府（意识形态）信息
-        JSONObject governmentInfo = new JSONObject();
+        ObjectNode governmentInfo = JsonNodeFactory.instance.objectNode();
         governmentInfo.put("ideologyId", civ.getIdeology());
         governmentInfo.put(
                 "ideologyName",
                 CFG.ideologiesMgr.getIdeologyID(civ.getIdeology()).getName());
-        viewData.put("governmentInfo", governmentInfo);
+        viewData.set("governmentInfo", governmentInfo);
 
         // 宗教信息
-        JSONObject religionInfo = new JSONObject();
+        ObjectNode religionInfo = JsonNodeFactory.instance.objectNode();
         religionInfo.put("religionId", civ.getReligionID());
         religionInfo.put(
                 "religionName",
                 CFG.religionManager.getReligion(civ.getReligionID()).getName());
-        viewData.put("religionInfo", religionInfo);
+        viewData.set("religionInfo", religionInfo);
 
         // 游戏设置信息
-        JSONObject gameSettingsInfo = new JSONObject();
+        ObjectNode gameSettingsInfo = JsonNodeFactory.instance.objectNode();
         gameSettingsInfo.put("difficulty", CFG.DIFFICULTY);
         gameSettingsInfo.put("difficultyName", CFG.getDifficultyName(CFG.DIFFICULTY));
         gameSettingsInfo.put("armyRetreatThreshold", (int) (CFG.ARMY_RETREAT * 100.0f));
         gameSettingsInfo.put("capitulationThreshold", (int) (CFG.CAPITULATION * 100.0f));
-        viewData.put("gameSettingsInfo", gameSettingsInfo);
+        viewData.set("gameSettingsInfo", gameSettingsInfo);
 
         return HttpResponses.success(viewData);
     }
