@@ -11,20 +11,23 @@ public final class HttpServerTransport implements Transport {
 
     public HttpServerTransport(LPConfig config, ApiDispatcher dispatcher) {
         this.config = config;
-        server = Javalin.create(javalin -> javalin.routes.before(ctx -> {
-            byte[] body = ctx.req().getInputStream().readNBytes(ApiDispatcher.MAX_REQUEST_BODY_SIZE + 1);
-            ApiResponse response = dispatcher.dispatchJson(ctx.method().name(), ctx.path(), body);
-            ctx.status(response.status());
-            if (response.status() == 405) {
-                ctx.header("Allow", "/v1/health".equals(ctx.path()) ? "GET" : "POST");
-            }
-            if (response.body() instanceof String text) {
-                ctx.contentType("text/plain; charset=utf-8").result(text);
-            } else {
-                ctx.contentType("application/json; charset=utf-8").result(JSON.toJSONBytes(response.body()));
-            }
-            ctx.skipRemainingHandlers();
-        }));
+        server = Javalin.create(javalin -> {
+            javalin.startup.showJavalinBanner = false;
+            javalin.routes.before(ctx -> {
+                byte[] body = ctx.req().getInputStream().readNBytes(ApiDispatcher.MAX_REQUEST_BODY_SIZE + 1);
+                ApiResponse response = dispatcher.dispatchJson(ctx.method().name(), ctx.path(), body);
+                ctx.status(response.status());
+                if (response.status() == 405) {
+                    ctx.header("Allow", "/v1/health".equals(ctx.path()) ? "GET" : "POST");
+                }
+                if (response.body() instanceof String text) {
+                    ctx.contentType("text/plain; charset=utf-8").result(text);
+                } else {
+                    ctx.contentType("application/json; charset=utf-8").result(JSON.toJSONBytes(response.body()));
+                }
+                ctx.skipRemainingHandlers();
+            });
+        });
     }
 
     @Override
