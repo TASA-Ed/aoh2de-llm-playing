@@ -21,6 +21,7 @@
     - `mixins/` Mixin 游戏逻辑。
       - `MixinAoCGame.java` Inject 游戏启动类，用于调用 `LP.java`。
     - `modes` 传输模式逻辑。
+      - `ApiDispatcher.java` API 调度集合
     - `handlers/` 路由/方法处理。
     - `FileUtil.java` 文件工具。
 - `lib/` Finality Framework Loader（`loader.jar`），游戏（`game.jar`） 依赖。
@@ -31,3 +32,13 @@
 - 添加或编辑路由后，务必同时编辑 OpenAPI 文档，使用 `./gradlew.ps1 lintOpenApi` 检测格式。 
 - 编辑代码后运行 `./gradlew.ps1 spotlessApply` 和 `./gradlew.ps1 build` 保证代码无误。
 - 路由一般以 `/v1` 开头，如：`/v1/message/action_message`。
+
+## 与游戏联调
+
+因为游戏运行需要 Gdx.files 和对应资源才可运行，所以与游戏联合调试需要在 Steam 游戏目录下进行，不要引用 `libs/` 下的 jar 进行。
+
+因为需要打包依赖，所以首先运行 `./gradlew.ps1 clean release`，生成的 all jar 包需要放入 `[游戏目录]/mods/[模组名称]/plugins/` 中。
+
+然后运行游戏目录下的 Finality Loader（命名一般类似 `loader-1.x.x.jar`），然后等待游戏加载，可能需要较长时间。
+
+如果用户没有提供 Steam 游戏目录和模组名称，则默认无需调试。

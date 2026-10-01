@@ -170,6 +170,31 @@ paths:
         '409': {$ref: '#/components/responses/Conflict'}
         '413': {$ref: '#/components/responses/PayloadTooLarge'}
         '503': {$ref: '#/components/responses/GameNotReady'}
+  /v1/diplomacy/action_treaty:
+    post:
+      tags: [Diplomacy]
+      summary: 外交条约操作
+      description: |
+        Sends a treaty proposal from the current player (A) to another living civilization (B).
+        Success means the proposal was sent, not that the treaty is active; B must accept it through the game's message workflow (players can use /v1/message/action_message).
+        ask_military_access (AskForMilitaryAccess) asks permission for A to enter B; offer_military_access (OfferMilitaryAccess) offers B permission to enter A. These invoke distinct game functions, preserving their different relation changes and reply behavior.
+        defensive_pact (FormDefensivePact) and non_aggression_pact (NonAggressionPact) create symmetric states on acceptance; only the defensive pact participates in defensive war joining.
+        guarantee_independence (ProclaimIndependence) proposes that A guarantees B's independence, not the reverse and not A declaring independence. It requires B's acceptance and participates in defensive war joining.
+        Costs and maximum duration follow current game configuration. Guarantee cost deliberately follows the actual sender's COST_OFFER_MILITARY_ACCESS_ASK_DIPLOMACY_POINTS (default 10 internal points), not the menu's COST_OFFER_PROCLAIM_INDEPENDENCE (default 5). All five operations check the actual sending cost before dispatch.
+        Existing treaties do not prevent another proposal. Acceptance uses the game's duration overwrite semantics, not the longer of old and new durations. Military access retains the game's per-turn maintenance costs for both parties; opposite directions remain separate records.
+        Business errors include MISSING_PARAMETER, INVALID_PARAMETER, UNKNOWN_TYPE, INVALID_TURNS, INVALID_CIVILIZATION_ID and INSUFFICIENT_DIPLOMACY_POINTS.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TreatyActionRequest'}
+            example: {civilizationId: 2, type: ask_military_access, turns: 10}
+      responses:
+        '200': {$ref: '#/components/responses/SuccessWithoutResult'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '503': {$ref: '#/components/responses/GameNotReady'}
   /v1/self/get_summary:
     post:
       tags: [Self]
@@ -476,6 +501,19 @@ components:
         civilizationId: {$ref: '#/components/schemas/CivilizationId'}
         type: {type: string, enum: [improve, decrease]}
         turns: {type: integer, description: Valid range depends on relation action and game configuration.}
+    TreatyActionRequest:
+      type: object
+      additionalProperties: false
+      required: [civilizationId, type, turns]
+      properties:
+        civilizationId: {$ref: '#/components/schemas/CivilizationId'}
+        type:
+          type: string
+          enum: [ask_military_access, offer_military_access, defensive_pact, non_aggression_pact, guarantee_independence]
+        turns:
+          type: integer
+          minimum: 1
+          description: Maximum follows gvDipMilitaryAccess for both access operations, gvDipDefensivePact for defensive pact, gvDipNonAggression for non-aggression pact, and gvDipGuarantee for guarantee independence.
     MessageActionRequest:
       type: object
       additionalProperties: false

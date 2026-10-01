@@ -19,6 +19,7 @@ public final class ApiDispatcher implements AutoCloseable {
             Map.entry("/v1/diplomacy/get_stats", new DiplomacyStatsHandler()),
             Map.entry("/v1/diplomacy/declare_war", new DeclareWarHandler()),
             Map.entry("/v1/diplomacy/change_relation", new ChangeRelationHandler()),
+            Map.entry("/v1/diplomacy/action_treaty", new TreatyActionHandler()),
             Map.entry("/v1/event/get_current_event", new CurrentEventHandler()),
             Map.entry("/v1/message/get_message_list", new MessageListHandler()),
             Map.entry("/v1/message/action_message", new MessageActionHandler()),
