@@ -3,8 +3,8 @@ info:
   title: LLM Tools API
   version: 0.2.0
   description: |
-    由 LP 启动的游戏工具服务，通过游戏根目录 LP_Config.json 的 mode 选择 http-server（默认）、ws-server 或 ws-client。
-    本 OpenAPI 描述 http-server 模式；监听地址由 host / port 指定，默认 127.0.0.1:8080。
+    由 LP 启动的游戏工具服务，通过游戏根目录 LP_Config.json 的 mode 选择 http-server（默认）、ws-server、ws-client 或 mcp-server；一次只运行一种模式。
+    本 OpenAPI 仅描述 http-server 模式的 HTTP /v1 API；监听地址由 host / port 指定，默认 127.0.0.1:8080。
     除健康检查外，所有接口均为 POST，使用 UTF-8 JSON 请求和响应。请求体最大为 64 KiB；空请求体等同于 `{}`。
     路径精确匹配；未知路径返回 404，方法不匹配返回 405（HTTP 响应包含 Allow 头）。
     两种 WebSocket 模式复用本文的路径、方法、请求参数与响应体，不同时提供 HTTP 游戏接口。
@@ -14,6 +14,14 @@ info:
     WebSocket 响应为 `{"id":"req-1","status":200,"body":{...}}`；status 对应 HTTP 状态码，body 为本文描述的响应。
     WebSocket 健康检查返回 `{"id":"req-1","status":200,"body":"OK"}`。无效消息返回 400；无法取得有效 ID 时 id 为 null。
     WebSocket 支持分片文本消息，超大消息以 1009 关闭，二进制消息以 1003 关闭（服务端超大二进制消息优先使用 1009）。
+    mcp-server 使用官方 Java SDK io.modelcontextprotocol.sdk:mcp:2.0.1（Jackson 3）与 Javalin 7.2.3，提供标准 MCP Streamable HTTP。
+    MCP 端点由 host / port / mcpPath 指定，默认 http://127.0.0.1:8080/mcp；不提供 /v1 HTTP 路由，也不使用 WebSocket 消息信封。
+    MCP 客户端通过 initialize / notifications/initialized 建立会话，通过 tools/list 发现工具名称和 inputSchema，再用 tools/call 的 name / arguments 调用。
+    mcpToolKinds 默认 [read-only, write]，可筛选工具；空数组或未知类别拒绝启动。被筛除的工具既不列出也不能调用。
+    MCP 游戏工具结果 structuredContent 保留本文的业务响应对象，content 同时包含 JSON 文本；失败设置 isError，_meta.httpStatus 保留业务状态码。
+    游戏尚未可操作时，MCP 初始化和工具发现仍可用，游戏调用返回结构化 GAME_NOT_READY（isError 为 true，_meta.httpStatus 为 503）。
+    MCP 整个 HTTP 请求体最大 64 KiB，Origin / Host 由 SDK 官方安全校验器检查；JSON-RPC 协议由 SDK 处理，不作为本文 /v1 路由描述。
+    官方 SDK 源码和依赖版本：https://github.com/modelcontextprotocol/java-sdk/tree/v2.0.1 。MCP 完整连接与配置说明见 README.md。
     游戏操作在主线程串行执行；会改变游戏状态的调用应按顺序安排。
     服务关闭、WebSocket 连接断开或请求处理线程中断时，将取消尚未开始的游戏操作；已开始执行的操作不会被中断或回滚。
     WebSocket 客户端连接失败或断开后不会自动重连，也不重试游戏操作。配置示例及完整消息协议见 README.md。

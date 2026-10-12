@@ -3,9 +3,17 @@ package top.tasaed.aoh2de.llm.playing.handlers;
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
+import top.tasaed.aoh2de.llm.playing.mcp.HandlerMcpTools;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolDefinition;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolProvider;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
-public final class DiplomacyStatsHandler extends GameRequestHandler {
+public final class DiplomacyStatsHandler extends GameRequestHandler implements McpToolProvider {
+    @Override
+    public McpToolDefinition mcpToolDefinition() {
+        return HandlerMcpTools.DIPLOMACY_STATS;
+    }
+
     public DiplomacyStatsHandler() {
         super("GET_DIPLOMACY_STATS_FAILED", "Failed to get diplomacy stats.");
     }

@@ -5,9 +5,17 @@ import age.of.civilizations2.jakowski.lukasz.GameAction;
 import age.of.civilizations2.jakowski.lukasz.GameCalendar;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
+import top.tasaed.aoh2de.llm.playing.mcp.HandlerMcpTools;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolDefinition;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolProvider;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
-public final class TurnStatsHandler extends GameRequestHandler {
+public final class TurnStatsHandler extends GameRequestHandler implements McpToolProvider {
+    @Override
+    public McpToolDefinition mcpToolDefinition() {
+        return HandlerMcpTools.TURN_STATS;
+    }
+
     public TurnStatsHandler() {
         super("GET_TURN_STATS_FAILED", "Failed to get turn stats.");
     }

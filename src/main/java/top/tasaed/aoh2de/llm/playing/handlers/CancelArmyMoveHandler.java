@@ -7,9 +7,17 @@ import age.of.civilizations2.jakowski.lukasz.MoveUnitsB.MoveUnits;
 import age.of.civilizations2.jakowski.lukasz.RegroupArmy.RegroupArmy;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
+import top.tasaed.aoh2de.llm.playing.mcp.HandlerMcpTools;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolDefinition;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolProvider;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
-public final class CancelArmyMoveHandler extends GameRequestHandler {
+public final class CancelArmyMoveHandler extends GameRequestHandler implements McpToolProvider {
+    @Override
+    public McpToolDefinition mcpToolDefinition() {
+        return HandlerMcpTools.CANCEL_ARMY_MOVE;
+    }
+
     public CancelArmyMoveHandler() {
         super("CANCEL_ARMY_MOVE_FAILED", "Failed to cancel the army movement order.");
     }

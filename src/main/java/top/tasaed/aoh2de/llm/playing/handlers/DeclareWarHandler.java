@@ -2,9 +2,17 @@ package top.tasaed.aoh2de.llm.playing.handlers;
 
 import age.of.civilizations2.jakowski.lukasz.CFG;
 import tools.jackson.databind.node.ObjectNode;
+import top.tasaed.aoh2de.llm.playing.mcp.HandlerMcpTools;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolDefinition;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolProvider;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
-public final class DeclareWarHandler extends GameRequestHandler {
+public final class DeclareWarHandler extends GameRequestHandler implements McpToolProvider {
+    @Override
+    public McpToolDefinition mcpToolDefinition() {
+        return HandlerMcpTools.DECLARE_WAR;
+    }
+
     public DeclareWarHandler() {
         super("DECLARE_WAR_FAILED", "Failure to Declare War.");
     }

@@ -36,6 +36,7 @@ public final class LP {
                 case "http-server" -> new HttpServerTransport(config, newDispatcher);
                 case "ws-server" -> new WebSocketServerTransport(config, newDispatcher);
                 case "ws-client" -> new WebSocketClientTransport(config, newDispatcher);
+                case "mcp-server" -> new McpServerTransport(config, newDispatcher);
                 default -> throw new IllegalArgumentException("Unsupported mode: " + config.getMode());
             };
             newTransport.start();

@@ -27,6 +27,7 @@ dependencies {
     shadow fileTree(dir:'libs',includes: ['*.jar'])
     implementation("tools.jackson.core:jackson-databind:3.2.3")
     implementation("io.javalin:javalin:7.2.3")
+    implementation("io.modelcontextprotocol.sdk:mcp:2.0.1")
     implementation("org.slf4j:slf4j-simple:2.0.18")
 }
 

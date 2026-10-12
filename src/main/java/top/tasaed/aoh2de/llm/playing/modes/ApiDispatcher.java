@@ -34,6 +34,10 @@ public final class ApiDispatcher implements AutoCloseable {
             Map.entry("/v1/turn/get_stats", new TurnStatsHandler()));
     private volatile boolean closed;
 
+    public Map<String, GameRequestHandler> handlers() {
+        return routes;
+    }
+
     public ApiResponse dispatchJson(String method, String path, byte[] body) {
         ApiResponse early = checkRoute(method, path);
         if (early != null) {

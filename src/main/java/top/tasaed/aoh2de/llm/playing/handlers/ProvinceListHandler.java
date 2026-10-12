@@ -6,9 +6,17 @@ import age.of.civilizations2.jakowski.lukasz.Province;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
+import top.tasaed.aoh2de.llm.playing.mcp.HandlerMcpTools;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolDefinition;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolProvider;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
-public final class ProvinceListHandler extends GameRequestHandler {
+public final class ProvinceListHandler extends GameRequestHandler implements McpToolProvider {
+    @Override
+    public McpToolDefinition mcpToolDefinition() {
+        return HandlerMcpTools.PROVINCE_LIST;
+    }
+
     public ProvinceListHandler() {
         super("GET_PROVINCE_LIST_FAILED", "Failed to get the province list.");
     }

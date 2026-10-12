@@ -5,9 +5,17 @@ import age.of.civilizations2.jakowski.lukasz.Civilization;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
+import top.tasaed.aoh2de.llm.playing.mcp.HandlerMcpTools;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolDefinition;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolProvider;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
-public final class ArmyListHandler extends GameRequestHandler {
+public final class ArmyListHandler extends GameRequestHandler implements McpToolProvider {
+    @Override
+    public McpToolDefinition mcpToolDefinition() {
+        return HandlerMcpTools.ARMY_LIST;
+    }
+
     public ArmyListHandler() {
         super("GET_ARMY_LIST_FAILED", "Failed to get the army list.");
     }

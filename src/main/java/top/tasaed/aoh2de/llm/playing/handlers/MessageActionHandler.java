@@ -5,9 +5,17 @@ import age.of.civilizations2.jakowski.lukasz.Civilization;
 import age.of.civilizations2.jakowski.lukasz.Messages.Message;
 import age.of.civilizations2.jakowski.lukasz.Messages.MessageBox_GameData;
 import tools.jackson.databind.node.ObjectNode;
+import top.tasaed.aoh2de.llm.playing.mcp.HandlerMcpTools;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolDefinition;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolProvider;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
-public final class MessageActionHandler extends GameRequestHandler {
+public final class MessageActionHandler extends GameRequestHandler implements McpToolProvider {
+    @Override
+    public McpToolDefinition mcpToolDefinition() {
+        return HandlerMcpTools.MESSAGE_ACTION;
+    }
+
     public MessageActionHandler() {
         super("ACTION_MESSAGE_FAILED", "Failed to action the message.");
     }

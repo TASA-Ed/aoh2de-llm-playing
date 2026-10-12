@@ -8,9 +8,17 @@ import age.of.civilizations2.jakowski.lukasz.Messages.MessageType;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
+import top.tasaed.aoh2de.llm.playing.mcp.HandlerMcpTools;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolDefinition;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolProvider;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
-public final class MessageListHandler extends GameRequestHandler {
+public final class MessageListHandler extends GameRequestHandler implements McpToolProvider {
+    @Override
+    public McpToolDefinition mcpToolDefinition() {
+        return HandlerMcpTools.MESSAGE_LIST;
+    }
+
     public MessageListHandler() {
         super("GET_MESSAGE_LIST_FAILED", "Failed to get the message list.");
     }

@@ -4,9 +4,17 @@ import age.of.civilizations2.jakowski.lukasz.CFG;
 import age.of.civilizations2.jakowski.lukasz.Civilization;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
+import top.tasaed.aoh2de.llm.playing.mcp.HandlerMcpTools;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolDefinition;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolProvider;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
-public final class BudgetSpendingInfoHandler extends GameRequestHandler {
+public final class BudgetSpendingInfoHandler extends GameRequestHandler implements McpToolProvider {
+    @Override
+    public McpToolDefinition mcpToolDefinition() {
+        return HandlerMcpTools.BUDGET_SPENDING_INFO;
+    }
+
     public BudgetSpendingInfoHandler() {
         super("GET_BUDGET_SPENDING_INFO_FAILED", "Failed to get budget spending info.");
     }

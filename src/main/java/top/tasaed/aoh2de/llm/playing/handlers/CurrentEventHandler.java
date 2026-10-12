@@ -6,9 +6,17 @@ import age.of.civilizations2.jakowski.lukasz.MoveUnitsB.MoveUnits_TurnData;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
+import top.tasaed.aoh2de.llm.playing.mcp.HandlerMcpTools;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolDefinition;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolProvider;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
-public final class CurrentEventHandler extends GameRequestHandler {
+public final class CurrentEventHandler extends GameRequestHandler implements McpToolProvider {
+    @Override
+    public McpToolDefinition mcpToolDefinition() {
+        return HandlerMcpTools.CURRENT_EVENT;
+    }
+
     public CurrentEventHandler() {
         super("GET_CURRENT_EVENT_FAILED", "Failed to get current event.");
     }

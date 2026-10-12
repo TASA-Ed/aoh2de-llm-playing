@@ -5,9 +5,17 @@ import age.of.civilizations2.jakowski.lukasz.GameCalendar;
 import age.of.civilizations2.jakowski.lukasz.Menus.Info.Menu_InGame_ProvInfo;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
+import top.tasaed.aoh2de.llm.playing.mcp.HandlerMcpTools;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolDefinition;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolProvider;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
-public final class EndTurnHandler extends GameRequestHandler {
+public final class EndTurnHandler extends GameRequestHandler implements McpToolProvider {
+    @Override
+    public McpToolDefinition mcpToolDefinition() {
+        return HandlerMcpTools.END_TURN;
+    }
+
     public EndTurnHandler() {
         super("END_TURN_FAILED", "Failed to execute the end turn action.");
     }

@@ -5,9 +5,16 @@ import age.of.civilizations2.jakowski.lukasz.Civilization;
 import age.of.civilizations2.jakowski.lukasz.GameManager;
 import age.of.civilizations2.jakowski.lukasz.GameValues.GameValues;
 import tools.jackson.databind.node.ObjectNode;
+import top.tasaed.aoh2de.llm.playing.mcp.HandlerMcpTools;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolDefinition;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolProvider;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
-public final class ChangeRelationHandler extends GameRequestHandler {
+public final class ChangeRelationHandler extends GameRequestHandler implements McpToolProvider {
+    @Override
+    public McpToolDefinition mcpToolDefinition() {
+        return HandlerMcpTools.CHANGE_RELATION;
+    }
 
     public ChangeRelationHandler() {
         super("CHANGE_RELATION_FAILED", "Failed to change relation.");

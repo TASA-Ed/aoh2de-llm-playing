@@ -6,9 +6,10 @@
 
 ## 项目概览
 
-- 游戏启动后按配置启动一种传输模式，供 LLM Agent、脚本或其他工具调用；HTTP / WS 服务端使用 Javalin，WS 客户端使用 `java.net.http.WebSocket`。
+- 游戏启动后按配置启动一种传输模式，供 LLM Agent、脚本或其他工具调用；HTTP / WS / MCP 服务端使用 Javalin，WS 客户端使用 `java.net.http.WebSocket`。
 - 提供国家、地区、军队、外交、建筑和回合等事件查询与操作。
-- 三种模式复用相同的路由与业务处理；所有游戏读写都切换到游戏主线程执行，避免直接从网络线程访问游戏状态。
+- 四种模式复用相同的业务处理；HTTP / WS 使用路由，MCP 使用 Handler 提供的独立工具元数据。所有游戏读写都切换到游戏主线程执行，避免直接从网络线程访问游戏状态。
+- 配置读取及 JSON 编解码使用 Jackson 3；业务处理器使用原生 `ObjectNode` / `ArrayNode`。MCP 使用[官方 Java SDK](https://github.com/modelcontextprotocol/java-sdk/tree/v2.0.1) `io.modelcontextprotocol.sdk:mcp:2.0.1`（Jackson 3），通过 Javalin 7.2.3 / Jetty Jakarta Servlet 挂载官方 Streamable HTTP transport，不自定义 JSON-RPC 协议。
 
 ## 项目结构
 
@@ -20,24 +21,29 @@
       - `LPConfig.java` 配置类。
     - `mixins/` Mixin 游戏逻辑。
       - `MixinAoCGame.java` Inject 游戏启动类，用于调用 `LP.java`。
-    - `modes` 传输模式逻辑。
+    - `modes/` 传输模式逻辑。
       - `ApiDispatcher.java` API 调度集合
-    - `handlers/` 路由/方法处理。
+    - `mcp/` MCP 模式逻辑
+      - `HandlerMcpTools.java` MCP 工具元数据集合
+    - `handlers/` 路由/方法处理
+      - `GameRequestHandler.java` 执行和游戏线程调度逻辑抽象
     - `FileUtil.java` 文件工具。
 - `lib/` Finality Framework Loader（`loader.jar`），游戏（`game.jar`） 依赖。
 - `openapi.yaml` 路由的 OpenAPI 文档。
 
 ## 规范
 
-- 添加或编辑路由后，务必同时编辑 OpenAPI 文档，使用 `./gradlew.bat lintOpenApi` 检测格式。 
-- 编辑代码后运行 `./gradlew.bat spotlessApply` 和 `./gradlew.bat build` 保证代码无误。
+- 添加或编辑路由后，务必同时编辑 OpenAPI 文档和 MCP 工具元数据集合，使用 `gradlew.bat lintOpenApi` 检测格式。 
+- 编辑代码后运行 `gradlew.bat spotlessApply` 和 `gradlew.bat build` 保证代码无误。
 - 路由一般以 `/v1` 开头，如：`/v1/message/action_message`。
+- 日志使用 `team.rainfall.finality.FinalityLogger`，输出错误堆栈时使用 `FinalityLogger.error(message, throwable)`，不要使用其他方法。
+- 执行游戏逻辑时要使用实际游戏中会调用的方法/函数（如点击按钮时实际调用的方法/函数）并添加实际游戏中的校验，不要调用 UI 的交互逻辑，也不要跳过游戏校验直接修改数据。
 
 ## 与游戏联调
 
 因为游戏运行需要 Gdx.files 和对应资源才可运行，所以与游戏联合调试需要在 Steam 游戏目录下进行，不要引用 `libs/` 下的 jar 进行。
 
-因为需要打包依赖，所以首先运行 `./gradlew.bat clean release`，生成的 all jar 包需要放入 `[游戏目录]/mods/[模组名称]/plugins/` 中。
+因为需要打包依赖，所以首先运行 `gradlew.bat clean release`，生成的 all jar 包需要放入 `[游戏目录]/mods/[模组名称]/plugins/` 中。
 
 然后运行游戏目录下的 Finality Loader（命名一般类似 `loader-1.x.x.jar`），然后等待游戏加载，可能需要较长时间。
 

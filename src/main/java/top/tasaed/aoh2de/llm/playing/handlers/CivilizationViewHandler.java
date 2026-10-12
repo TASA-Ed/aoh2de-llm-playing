@@ -7,9 +7,17 @@ import age.of.civilizations2.jakowski.lukasz.MapA.Plagues.Nuke.NukeManager;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
+import top.tasaed.aoh2de.llm.playing.mcp.HandlerMcpTools;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolDefinition;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolProvider;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
-public final class CivilizationViewHandler extends GameRequestHandler {
+public final class CivilizationViewHandler extends GameRequestHandler implements McpToolProvider {
+    @Override
+    public McpToolDefinition mcpToolDefinition() {
+        return HandlerMcpTools.CIVILIZATION_VIEW;
+    }
+
     public CivilizationViewHandler() {
         super("GET_CIVILIZATION_VIEW_FAILED", "Failed to get the civilization view information.");
     }
@@ -33,7 +41,7 @@ public final class CivilizationViewHandler extends GameRequestHandler {
                 basicInfo.put(
                         "capitalName",
                         CFG.core.getProv(civ.getCapitalProvID()).getCit(0).getCityName());
-            } else if (CFG.core.getProv(civ.getCapitalProvID()).getName().length() > 0) {
+            } else if (!CFG.core.getProv(civ.getCapitalProvID()).getName().isEmpty()) {
                 basicInfo.put(
                         "capitalName", CFG.core.getProv(civ.getCapitalProvID()).getName());
             }

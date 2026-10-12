@@ -5,9 +5,17 @@ import age.of.civilizations2.jakowski.lukasz.Civilization;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
+import top.tasaed.aoh2de.llm.playing.mcp.HandlerMcpTools;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolDefinition;
+import top.tasaed.aoh2de.llm.playing.mcp.McpToolProvider;
 import top.tasaed.aoh2de.llm.playing.modes.HttpResponses;
 
-public final class NeighborCivsHandler extends GameRequestHandler {
+public final class NeighborCivsHandler extends GameRequestHandler implements McpToolProvider {
+    @Override
+    public McpToolDefinition mcpToolDefinition() {
+        return HandlerMcpTools.NEIGHBOR_CIVS;
+    }
+
     public NeighborCivsHandler() {
         super("GET_NEIGHBOR_CIVS_FAILED", "Failed to get the neighbor civilizations list.");
     }
