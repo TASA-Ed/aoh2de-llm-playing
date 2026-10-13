@@ -11,12 +11,18 @@ import team.rainfall.finality.FinalityLogger;
 import tools.jackson.databind.node.ObjectNode;
 import top.tasaed.aoh2de.llm.playing.modes.ApiResponse;
 
+/** 执行和游戏线程调度逻辑 */
 public abstract class GameRequestHandler {
     private final String failureCode;
     private final String failureMessage;
     private final Set<FutureTask<ObjectNode>> pending = ConcurrentHashMap.newKeySet();
     private volatile boolean closed;
 
+    /**
+     * 默认失败文本
+     * @param failureCode 失败状态码
+     * @param failureMessage 失败消息
+     */
     public GameRequestHandler(String failureCode, String failureMessage) {
         this.failureCode = failureCode;
         this.failureMessage = failureMessage;
@@ -64,5 +70,10 @@ public abstract class GameRequestHandler {
         pending.forEach(result -> result.cancel(false));
     }
 
+    /**
+     * 执行逻辑
+     * @param request JSON 请求体
+     * @return 返回 JSON 响应体
+     */
     protected abstract ObjectNode handleOnGameThread(ObjectNode request);
 }
